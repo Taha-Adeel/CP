@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define FAST ios::sync_with_stdio(0); cin.tie(0)
+template<class T> struct V: vector<T>{using vector<T>::vector;
+	void sort()     {std::sort(this->begin(), this->end());}
+	void sort_dsc() {std::sort(this->begin(), this->end(), greater<T>());}
+	long long sum() {long long sum = 0; for(auto& i: *this) sum += i; return sum;}
+	map<T, int> freqs() {map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
+	map<T, vector<int>> indices() {map<T, vector<int>> index; for(int i=0; i<(int)this->size(); i++) index[this->at(i)].push_back(i); return index;}
+	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v) out << i << ' '; return out;}
+	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v) in >> i; return in;}
+};
+#define pY {cout << "YES"; return;}
+#define pN {cout << "NO";  return;}
+
+#define FOR(i, n)                for(int i = 0; i < (int)n; ++i)
+#define FOR1(i, n)               for(int i = 1; i < (int)n; ++i)
+#define FOR_RANGE(i, start, end) for(int i = start; i != end; i += (start<end) ? 1 : -1)
+#define FOR_REV(i, n)            for(int i = (int)n-1; i >= 0; --i)
+#define all(v)                   v.begin(), v.end()
+
+#define F  first
+#define S  second
+#define pb push_back
+constexpr char nl = '\n';
+constexpr int MOD = 1000000007;
+using ll  = long long int;
+using pii = pair<int,int>;
+using pll = pair<ll,ll>;
+using vi  = V<int>;
+using vll = V<ll>;
+
+/*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+
+int k;
+
+struct node{
+	int value;
+	int parent = -1;
+	vi children;
+
+	int xor_value;
+	int xor_children = 0;
+};
+
+void dfs(int root, V<node>& tree){
+	for(auto child: tree[root].children){
+		dfs(child, tree);
+		tree[root].xor_children ^= tree[child].xor_value;
+	}
+
+	if(k-- > 0)
+		tree[root].xor_value = 1;
+	else
+		tree[root].xor_value = 0;
+	tree[root].value = tree[root].xor_value ^ tree[root].xor_children;
+}
+
+void solve(){
+	int n;
+	cin >> n >> k;
+	V<node> tree(n);
+	FOR1(i, n){
+		cin >> tree[i].parent;
+		tree[tree[i].parent - 1].children.pb(i);
+	}
+
+	dfs(0, tree);
+
+	FOR(i, n)
+		cout << tree[i].value;
+}
+
+int main(){
+	int T;
+	cin >> T;
+	FOR(t, T){
+		solve();
+		cout << nl;
+	}
+	
+	return 0;
+}

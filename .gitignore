@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Extension files
+.vscode
+.cph

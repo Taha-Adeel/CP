@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define FAST ios::sync_with_stdio(0); cin.tie(0)
+template<class T> struct V: vector<T>{using vector<T>::vector;
+	void sort_asc() {sort(this->begin(), this->end());}
+	void sort_dsc() {sort(this->begin(), this->end(), greater<T>());}
+	long long sum() {long long sum = 0; for(auto& i: *this) sum += i; return sum;}
+	map<T, int> freqs() {map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
+	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v) out << i << ' '; return out;}
+	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v) in >> i; return in;}
+};
+void display(bool answer){cout << ((answer)?"Yes":"No");}
+#define pY {cout << "Yes"; return;}
+#define pN {cout << "No";  return;}
+
+#define FOR(i, n)                for(int i = 0; i < n; ++i)
+#define FOR_RANGE(i, start, end) for(int i = start; i != end; i += (start<end) ? 1 : -1)
+#define FOR_REV(i, n)            for(int i = n-1; i >= 0; --i)
+
+#define F  first
+#define S  second
+#define pb push_back
+constexpr char nl = '\n';
+constexpr int MOD = 1000000007;
+using ll  = long long int;
+using pii = pair<int,int>;
+using pll = pair<ll,ll>;
+using vi  = V<int>;
+using vll = V<ll>;
+
+/*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+
+void solve(){
+	int N;
+	cin >> N;
+	vi A(N);
+	cin >> A;
+	
+	vi dp_gcd_r(N);
+	dp_gcd_r[N-1] = 0;
+	FOR_REV(i, N-1)
+		dp_gcd_r[i] = gcd(dp_gcd_r[i+1], A[i+1]);
+	
+	int gcd_l = 0;
+	int ans = 0;
+	FOR(i, N){
+		if(gcd(gcd_l, dp_gcd_r[i]) != 1)
+			ans++;
+		gcd_l = gcd(gcd_l, A[i]);
+	}
+
+	cout << ans;
+}
+
+int main(){
+	int T;
+	cin >> T;
+	FOR(t, T){
+		solve();
+		cout << nl;
+	}
+	
+	return 0;
+}

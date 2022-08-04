@@ -1,0 +1,43 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define FOR(a,c)   for (int (a)=0; (a)<(c); ++(a))
+#define FAST ios::sync_with_stdio(0); cin.tie(0);
+#define nl '\n'
+using ll = long long int;
+using p_ii = pair<int,int>;
+constexpr int MOD{1000000007};
+constexpr ll INF{1000000000000000003};
+
+int main(){
+	int T;
+	cin >> T;
+	while(T--){
+		int N;
+		cin >> N;
+
+		vector<int> A(N), B(N);
+
+		int prefix = 1;
+		for(int i = 0; i < N; i += 2){
+			A[i] = (prefix << 2) + 0;
+			B[i] = (prefix << 2) + 2;
+			if(i + 1 < N){
+				A[i + 1] = (prefix << 2) + 3;
+				B[i + 1] = (prefix << 2) + 1;
+			}
+			++prefix;
+		}
+
+		for(auto a: A)
+			cout << a << ' ';
+		cout << nl;
+
+		for(auto b: B)
+			cout << b << ' ';
+		cout << nl;
+	}
+
+	return 0;
+}
