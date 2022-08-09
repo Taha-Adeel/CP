@@ -4,8 +4,8 @@ using namespace std;
 
 #define FAST ios::sync_with_stdio(0); cin.tie(0)
 template<class T> struct V: vector<T>{using vector<T>::vector;
-	void sort() {sort(this->begin(), this->end());}
-	void sort_dsc() {sort(this->begin(), this->end(), greater<T>());}
+	void sort() {std::sort(this->begin(), this->end());}
+	void sort_dsc() {std::sort(this->begin(), this->end(), greater<T>());}
 	long long sum() {long long sum = 0; for(auto& i: *this) sum += i; return sum;}
 	map<T, int> freqs() {map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
 	map<T, vector<int>> indices() {map<T, vector<int>> index; for(int i=0; i<(int)this->size(); i++) index[this->at(i)].push_back(i); return index;}
@@ -34,24 +34,35 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+struct Project{
+	int a;
+	int b;
+	int p;
+
+	friend bool operator<(Project p1, Project p2){return p1.b < p2.b;}
+};
+
 void solve(){
 	int n;
 	cin >> n;
-	vi x(n);
-	cin >> x;
-	
-	set<int> values;
-	values.insert(0);
-	FOR(i, n){
-		auto prev = values;
-		for(auto& p: prev)
-			values.insert(p+x[i]);
-	}
-	values.erase(0);
+	V<Project> project(n);
+	FOR(i, n)
+		cin >> project[i].a >> project[i].b >> project[i].p;
+	project.pb({0, 0, 0});
+	project.sort();
 
-	cout << values.size() << nl;
-	for(auto& v: values)
-		cout << v << ' ';
+	map<int, ll> dp;
+	FOR1(i, n){
+		int a = (lower_bound(all(project), Project({0, project[i].a, 0}))-1)->b;
+		int b = project[i].b;
+
+		if(dp[b] == 0)
+			dp[b] = dp[project[i-1].b];
+
+		dp[b] = max(dp[b], dp[a] + project[i].p);
+	}
+
+	cout << dp[project[n].b];
 }
 
 int main(){

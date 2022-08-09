@@ -16,7 +16,7 @@ template<class T> struct V: vector<T>{using vector<T>::vector;
 #define pN {cout << "NO";  return;}
 
 #define FOR(i, n)                for(int i = 0; i < (int)n; ++i)
-#define FOR1(i, n)               for(int i = 1; i <= (int)n; ++i)
+#define FOR1(i, n)               for(int i = 1; i < (int)n; ++i)
 #define FOR_RANGE(i, start, end) for(int i = start; i != end; i += (start<end) ? 1 : -1)
 #define FOR_REV(i, n)            for(int i = (int)n-1; i >= 0; --i)
 #define all(v)                   v.begin(), v.end()
@@ -35,23 +35,22 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	int n;
-	cin >> n;
-	vi x(n);
-	cin >> x;
-	
-	set<int> values;
-	values.insert(0);
-	FOR(i, n){
-		auto prev = values;
-		for(auto& p: prev)
-			values.insert(p+x[i]);
-	}
-	values.erase(0);
+	int a, b;
+	cin >> a >> b;
 
-	cout << values.size() << nl;
-	for(auto& v: values)
-		cout << v << ' ';
+	V<vi> ans(a, vi(b, 50000));
+	FOR(i, min(a, b))
+		ans[i][i] = 0;
+	FOR(i, a){
+		FOR(j, b){
+			FOR(k, i)
+				ans[i][j] = min(ans[i][j], ans[k][j] + ans[i-k-1][j] + 1);
+			FOR(k, j)
+				ans[i][j] = min(ans[i][j], ans[i][k] + ans[i][j-k-1] + 1);
+		}
+	}
+
+	cout << ans[a-1][b-1];
 }
 
 int main(){
