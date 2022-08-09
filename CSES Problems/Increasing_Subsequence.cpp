@@ -39,19 +39,19 @@ void solve(){
 	cin >> n;
 	vi x(n);
 	cin >> x;
-	
-	set<int> values;
-	values.insert(0);
-	FOR(i, n){
-		auto prev = values;
-		for(auto& p: prev)
-			values.insert(p+x[i]);
-	}
-	values.erase(0);
 
-	cout << values.size() << nl;
-	for(auto& v: values)
-		cout << v << ' ';
+	vll dp(n, INT_MAX);
+
+	FOR(i, n){
+		auto it = lower_bound(all(dp), x[i]);
+		*it = x[i];
+	}
+
+	int ans = 0;
+	while(ans < n && dp[ans] != INT_MAX)
+		ans++;
+	
+	cout << ans;
 }
 
 int main(){
