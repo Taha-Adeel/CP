@@ -120,19 +120,16 @@ public:
 void solve(){
 	int n, Q;
 	cin >> n >> Q;
-	vll x(n);
+	vi x(n);
 	cin >> x;
 
-	SegmentTree<ll> s(x);
+	SegmentTree<int> s(x, [](int a, int b){return a^b;});
 
 	FOR(q, Q){
-		int a, b, c;
-		cin >> a >> b >> c;
+		int a, b;
+		cin >> a >> b;
 
-		if(a == 1)
-			s.update(b-1, c);
-		else
-			cout << s.query(b-1, c-1) << nl;
+		cout << s.query(a-1, b-1) << nl;
 	}
 }
 
