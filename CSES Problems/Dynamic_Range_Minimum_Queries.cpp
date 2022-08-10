@@ -120,10 +120,10 @@ public:
 void solve(){
 	int n, Q;
 	cin >> n >> Q;
-	vll x(n);
+	vi x(n);
 	cin >> x;
 
-	SegmentTree<ll> s(x);
+	SegmentTree<int> s(x, [](int a, int b){return min(a, b);}, INT_MAX);
 
 	FOR(q, Q){
 		int a, b, c;

@@ -10,8 +10,8 @@ template<class T> struct V: vector<T>{using vector<T>::vector;
 	auto freqs() 		{map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
 	auto indices()		{int n=this->size(); map<T, V<int>> ii; for(int i=0; i<n; i++) ii[(*this)[i]].push_back(i); return ii;}
 	auto prefix_sums() 	{int n=this->size(); V<T> ps(n+1,0); for(int i=0; i<n; i++) ps[i+1] = ps[i]+(*this)[i]; return ps;}
-	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v) out << i << ' '; return out;}
-	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v) in >> i; return in;}
+	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v){out << i << ' ';} return out;}
+	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v){in >> i;} return in;}
 };
 #define pY {cout << "YES"; return;}
 #define pN {cout << "NO";  return;}
@@ -36,16 +36,24 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	
+	int n, q;
+	cin >> n >> q;
+	vll x(n);
+	cin >> x;
+	auto prefix_sum = x.prefix_sums();
+
+	FOR(i, q){
+		int a, b;
+		cin >> a >> b;
+
+		cout << prefix_sum[b] - prefix_sum[a-1] << nl;
+	}
 }
 
 int main(){
-	int T;
-	cin >> T;
-	FOR(t, T){
-		solve();
-		cout << nl;
-	}
+	FAST;
+	solve();
+	cout << nl;
 	
 	return 0;
 }

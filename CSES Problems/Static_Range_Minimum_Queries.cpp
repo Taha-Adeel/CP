@@ -10,8 +10,8 @@ template<class T> struct V: vector<T>{using vector<T>::vector;
 	auto freqs() 		{map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
 	auto indices()		{int n=this->size(); map<T, V<int>> ii; for(int i=0; i<n; i++) ii[(*this)[i]].push_back(i); return ii;}
 	auto prefix_sums() 	{int n=this->size(); V<T> ps(n+1,0); for(int i=0; i<n; i++) ps[i+1] = ps[i]+(*this)[i]; return ps;}
-	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v) out << i << ' '; return out;}
-	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v) in >> i; return in;}
+	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v){out << i << ' ';} return out;}
+	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v){in >> i;} return in;}
 };
 #define pY {cout << "YES"; return;}
 #define pN {cout << "NO";  return;}
@@ -35,17 +35,59 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+class SparseTable{
+	vector<vector<int>> sparse_table;
+	vector<int> lg; // Precomputed values of floor(log2(i))
+
+public:
+	SparseTable(vector<int>& arr){
+		int n = arr.size();
+
+		// Precompute log values
+		lg.reserve(n + 1);
+		lg[1] = 0;
+		for (int i = 2; i <= n; i++)
+			lg[i] = lg[i/2] + 1;
+
+		// Initialize the sparse table
+		int k = lg[n] + 1;
+		sparse_table = vector<vector<int>>(n, vector<int>(k));
+		for(int i = 0; i < n; i++)
+			sparse_table[i][0] = arr[i];
+		
+		// Populate the sparse table
+		for(int j = 1; j < k; j++)
+			for(int i = 0; i + (1 << j) <= n; i++)
+				sparse_table[i][j] = min(sparse_table[i][j-1], sparse_table[i + (1 << (j - 1))][j - 1]);
+	}
+
+	int query(int l, int r){
+		int j = lg[r - l + 1];
+		int value = min(sparse_table[l][j], sparse_table[r - (1 << j) + 1][j]);
+
+		return value;
+	}
+};
+
 void solve(){
-	
+	int n, q;
+	cin >> n >> q;
+	vi x(n);
+	cin >> x;
+	SparseTable s(x);
+
+	FOR(i, q){
+		int a, b;
+		cin >> a >> b;
+
+		cout << s.query(a-1, b-1) << nl;
+	}
 }
 
 int main(){
-	int T;
-	cin >> T;
-	FOR(t, T){
-		solve();
-		cout << nl;
-	}
+	FAST;
+	solve();
+	cout << nl;
 	
 	return 0;
 }
