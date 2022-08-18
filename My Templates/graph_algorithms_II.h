@@ -1,0 +1,139 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define V vector
+#define F first
+#define S second
+using ll = long long;
+using vi = V<int>;
+using vll = V<ll>;
+using pii = pair<int, int>;
+#define FOR(i, n) for(int i = 0; i < (int)n; ++i)
+#define pb push_back
+
+#define INF 1e15
+template <int N> using arr = array<int, N>;
+
+struct Node{
+	int val;
+	bool visited = false;
+	int parent = -1;
+	ll dist = INF;
+	V<pii> adj_list;
+};
+
+V<arr<3>> get_edge_list(const V<Node>& graph){
+	V<arr<3>> edges; // List of all edges
+	FOR(i, graph.size())
+		for(auto& edge: graph[i].adj_list)
+			edges.pb({i, edge.F, edge.S});
+	
+	return edges;
+}
+
+// Bellman-Ford algorithm to find shortest point from the root to all points in a weighted graph(with no negative cycles) in O(nm).
+void calc_dists_bf_unoptimized(int root, V<Node>& graph){
+	auto edges = get_edge_list(graph);
+	
+	graph[root].dist = 0;
+	FOR(i, graph.size()){
+		for(auto& e: edges)
+			graph[e[1]].dist = min(graph[e[1]].dist, graph[e[0]].dist + e[2]);
+	}
+}
+
+// Optimized Bellman-Ford algorithm to find shortest point from the root to all points in a weighted graph(with no negative cycles) in O(nm).
+void calc_dists_bf(int root, V<Node>& graph){
+	auto edges = get_edge_list(graph);
+
+	graph[root].dist = 0;
+	FOR(i, graph.size()){
+		bool final = true;
+		for(auto& e: edges){
+			if(graph[e[0]].dist + e[2] < graph[e[1]].dist){
+				graph[e[1]].dist = graph[e[0]].dist + e[2];
+				final = false;
+			}
+		}
+		if(final) break;
+	}
+}
+
+// Shortest Path First Algorithm (SPFA), which is a further optimization of Bellman-Ford. Average case time is better. Worst case = O(nm)
+void calc_dists_spfa(int root, V<Node>& graph){
+	graph[root].dist = 0;
+	deque<int> q; // Use priority queue for better time complexity(Almost similar to Dijkstra's)
+	V<bool> in_q(graph.size(), false);
+	q.push_back(root); in_q[root] = true;
+	while(!q.empty()){
+		int u = q.front(); q.pop_front(); in_q[u] = false;
+		for(auto& e: graph[u].adj_list){
+			int v = e.F, w = e.S;
+			if(graph[u].dist + w < graph[v].dist){
+				graph[v].dist = graph[u].dist + w;
+				if(!in_q[v]){
+					// Smallest Lable First Optimiztion
+					if(graph[v].dist < graph[q.front()].dist)
+						q.push_front(v), in_q[v] = true;
+					else
+						q.push_back(v), in_q[v] = true;
+				}
+			}
+		}
+	}
+}
+
+// Dijkstra's algorithm to find shortest paths from the starting node to all nodes of a weighted graph with positive weights in O(n + m log(m))
+void calc_dists_dijkstra(int root, V<Node>& graph){
+	struct compNodeDist{ const V<Node>& graph; compNodeDist(const V<Node>& _graph): graph(_graph){}
+		bool operator()(int u, int v){return graph[u].dist >= graph[v].dist;};
+	};
+	priority_queue<int, vi, compNodeDist> q(graph);
+	graph[root].dist = 0;
+	q.push(root);
+	while(!q.empty()){
+		int u = q.top(); q.pop();
+		if(graph[u].visited) continue;
+		graph[u].visited = true;
+		for(auto& e: graph[u].adj_list){
+			int v = e.F, w = e.S;
+			if(graph[u].dist + w < graph[v].dist){
+				graph[v].dist = graph[u].dist + w;
+				q.push(v);
+			}
+		}
+	}
+}
+
+// Floyd-Warshall algorithm to find all-pairs shortest path algorithm using dynamic programming.
+auto calc_all_dists_fw(const V<Node>& graph){
+	int n = graph.size();
+	V<vll> distance(n, vll(n, INF));
+	FOR(i, n) distance[i][i] = 0;
+	FOR(i, n) for(auto& e: graph[i].adj_list) distance[i][e.F] = min(distance[i][e.F], (ll)e.S);
+
+	FOR(k, n)
+		FOR(i, n)
+			FOR(j, n)
+				distance[i][j] = min(distance[i][j], distance[i][k] + distance[k][j]);
+	
+	return distance;
+}
+
+void input(){
+	int n, m;
+	cin >> n >> m;
+
+	V<Node> graph(n);
+	FOR(i, m){
+		int a, b, c;
+		cin >> a >> b >> c; a--; b--;
+		graph[a].adj_list.pb({b, c});
+		// graph[b].adj_list.pb({a, c});
+	}
+
+	calc_dists_bf(0, graph);
+
+	for(auto& city: graph)
+		cout << city.dist << ' ';
+}
