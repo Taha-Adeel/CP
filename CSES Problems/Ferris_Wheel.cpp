@@ -39,16 +39,13 @@ void solve(){
 	cin >> p;
 	p.sort_asc();
 
-	int godulas_req = 0;
-	int pairs = 0;
+	int godulas_req = n;
 	for(int l = 0, r = n - 1; l < r; ++l, --r){
 		while(l < r && p[l]+p[r] > x)
 			r--;
-		if(l == r)
-			break;
-		pairs++;
+		if(l != r)
+			godulas_req--;
 	}
-	godulas_req = n - pairs;
 	
 	cout << godulas_req;
 }
