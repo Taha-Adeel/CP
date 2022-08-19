@@ -105,7 +105,7 @@ void calc_dists_dijkstra(int root, V<Node>& graph){
 	}
 }
 
-// Floyd-Warshall algorithm to find all-pairs shortest path algorithm using dynamic programming.
+// Floyd-Warshall algorithm to find all-pairs shortest path algorithm using dynamic programming in O(n^3).
 auto calc_all_dists_fw(const V<Node>& graph){
 	int n = graph.size();
 	V<vll> distance(n, vll(n, INF));
