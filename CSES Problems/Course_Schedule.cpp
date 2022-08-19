@@ -37,62 +37,34 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+enum class STATE {UNVISITED, PROCESSING, PROCESSED};
 struct Node{
-	int val;
-	int index;
-	bool visited = false;
-	int parent = -1;
-	vi adj_list;
+	vi  adj_list;
+	STATE state = STATE::UNVISITED;
 };
 
-bool cycle = false;
-int cycle_start, cycle_end;
-set<int> cur_path;
-
-bool print_cycle(const V<Node>& graph){
-	bool cycle = false;
-	int cycle_start, cycle_end;
-	set<int> cur_path;
-	function<void(int, V<Node>&)> dfs = [&](int root, V<Node>& graph){
-		if(cycle) return;
-		cur_path.insert(root);
-
+// Returns the elements of a directed graph in a topological ordering(a appears before b if there is an edge from a to b)
+vi get_topological_ordering(V<Node>& graph){
+	vi topological_ordering;
+	function<void(int)> dfs = [&](int root){
+		graph[root].state = STATE::PROCESSING;
 		for(auto& child: graph[root].adj_list){
-			if(!graph[child].visited){
-				graph[child].visited = true;
-				graph[child].parent = root;
-				dfs(child, graph);
-			}
-			else if(!cycle && cur_path.find(child) != cur_path.end()){
-				cycle = true;
-				cycle_start = child;
-				cycle_end = root;
-				cur_path.clear();
-				return;
-			}
+			if(graph[child].state == STATE::UNVISITED)
+				dfs(child);
+			else if(graph[child].state == STATE::PROCESSING) throw "Cycle found";
 		}
-		cur_path.erase(root);
+		graph[root].state = STATE::PROCESSED;
+		topological_ordering.pb(root+1);
 	};
-	
-	int n = graph.size();
-	V<Node> graph_copy = graph;
-	FOR(i, n)
-		if(!graph_copy[i].visited)
-			dfs(i, graph_copy);
 
-	if(cycle){
-		vi cycle;
-		for(int i = cycle_end; i != cycle_start; i = graph_copy[i].parent)
-			cycle.pb(i+1);
-		cycle.pb(cycle_start+1);
-		reverse(all(cycle));
-		cycle.pb(cycle_start+1);
+	FOR(i, graph.size()) 
+		if(graph[i].state == STATE::UNVISITED)
+			try{dfs(i);}
+			catch(const char* e){return vi{};}
 
+	reverse(all(topological_ordering));
 
-		cout << cycle.size() << nl;
-		cout << cycle << nl;
-	}
-	return cycle;
+	return topological_ordering;
 }
 
 void solve(){
@@ -100,20 +72,20 @@ void solve(){
 	cin >> n >> m;
 
 	V<Node> graph(n);
-	FOR(i, n)
-		graph[i].index = i;
 	FOR(i, m){
 		int a, b;
 		cin >> a >> b; a--, b--;
 		graph[a].adj_list.pb(b);
 	}
 
-	if(!print_cycle(graph))
+	auto schedule = get_topological_ordering(graph);
+	if(!schedule.empty())
+		cout << schedule;
+	else
 		cout << "IMPOSSIBLE";
 }
 
 int main(){
-	FAST;
 	solve();
 	cout << nl;
 	

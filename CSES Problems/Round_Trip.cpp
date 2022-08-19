@@ -46,27 +46,51 @@ struct Node{
 	vi adj_list;
 };
 
-bool cycle = false;
-int cycle_start, cycle_end;
+bool print_cycle(const V<Node>& graph){
+	bool cycle = false;
+	int cycle_start, cycle_end;
+	set<int> cur_path;
+	function<void(int, V<Node>&)> dfs = [&](int root, V<Node>& graph){
+		if(cycle) return;
+		cur_path.insert(root);
 
-void dfs(int root, V<Node>& graph){
-	if(cycle)
-		return;
-	graph[root].visited = true;
-	for(auto& child: graph[root].adj_list){
-		if(child == graph[root].parent)
-			continue;
-		if(!graph[child].visited){
-			graph[child].parent = root;
-			dfs(child, graph);
+		for(auto& child: graph[root].adj_list){
+			if(child == graph[root].parent) continue;
+			if(!graph[child].visited){
+				graph[child].visited = true;
+				graph[child].parent = root;
+				dfs(child, graph);
+			}
+			else if(!cycle && cur_path.find(child) != cur_path.end()){
+				cycle = true;
+				cycle_start = child;
+				cycle_end = root;
+				cur_path.clear();
+				return;
+			}
 		}
-		else if(!cycle){
-			cycle = true;
-			cycle_start = child;
-			cycle_end = root;
-			return;
-		}
+		cur_path.erase(root);
+	};
+	
+	int n = graph.size();
+	V<Node> graph_copy = graph;
+	FOR(i, n)
+		if(!graph_copy[i].visited)
+			dfs(i, graph_copy);
+
+	if(cycle){
+		vi cycle;
+		for(int i = cycle_end; i != cycle_start; i = graph_copy[i].parent)
+			cycle.pb(i+1);
+		cycle.pb(cycle_start+1);
+		reverse(all(cycle));
+		cycle.pb(cycle_start+1);
+
+
+		cout << cycle.size() << nl;
+		cout << cycle << nl;
 	}
+	return cycle;
 }
 
 void solve(){
@@ -83,22 +107,7 @@ void solve(){
 		graph[b].adj_list.pb(a);
 	}
 
-	FOR(i, n)
-		if(!graph[i].visited)
-			dfs(i, graph);
-
-	if(cycle){
-		vi cycle;
-		for(int i = cycle_end; i != cycle_start; i = graph[i].parent)
-			cycle.pb(i+1);
-		cycle.pb(cycle_start+1);
-		reverse(all(cycle));
-		cycle.pb(cycle_start+1);
-
-		cout << cycle.size() << nl;
-		cout << cycle << nl;
-	}
-	else
+	if(!print_cycle(graph))
 		cout << "IMPOSSIBLE";
 }
 

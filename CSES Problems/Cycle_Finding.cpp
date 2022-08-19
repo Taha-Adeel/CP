@@ -37,35 +37,60 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+#define INF 1e15
+template <int N> using arr = array<int, N>;
+
 struct Node{
 	int val;
-	int index;
 	bool visited = false;
 	int parent = -1;
-	vi adj_list;
+	ll dist = INF;
+	V<pii> adj_list;
 };
 
-bool cycle = false;
-int cycle_start, cycle_end;
-set<int> cur_path;
+V<arr<3>> get_edge_list(const V<Node>& graph){
+	V<arr<3>> edges; // List of all edges
+	FOR(i, graph.size())
+		for(auto& edge: graph[i].adj_list)
+			edges.pb({i, edge.F, edge.S});
+	
+	return edges;
+}
 
-bool print_cycle(const V<Node>& graph){
+auto calc_dists_bf(int root, V<Node>& graph){
+	auto edges = get_edge_list(graph);
+	
+	graph[root].dist = 0;
+	set<arr<3>> cyclic_edges;
+	FOR(i, graph.size()+1){
+		for(auto& e: edges){
+			if(graph[e[0]].dist + e[2] < graph[e[1]].dist){
+				graph[e[1]].dist = graph[e[0]].dist + e[2];
+				if(i >= (int)graph.size()-1) cyclic_edges.insert(e);
+			}
+		}
+	}
+	if(cyclic_edges.empty()) cout << "NO";
+	return cyclic_edges;
+}
+
+// Prints a cycle in a directed/undirected graph;
+void print_cycle(const V<Node>& graph){
 	bool cycle = false;
 	int cycle_start, cycle_end;
 	set<int> cur_path;
 	function<void(int, V<Node>&)> dfs = [&](int root, V<Node>& graph){
 		if(cycle) return;
 		cur_path.insert(root);
-
 		for(auto& child: graph[root].adj_list){
-			if(!graph[child].visited){
-				graph[child].visited = true;
-				graph[child].parent = root;
-				dfs(child, graph);
+			if(!graph[child.F].visited){
+				graph[child.F].visited = true;
+				graph[child.F].parent = root;
+				dfs(child.F, graph);
 			}
-			else if(!cycle && cur_path.find(child) != cur_path.end()){
+			else if(!cycle && cur_path.find(child.F) != cur_path.end()){
 				cycle = true;
-				cycle_start = child;
+				cycle_start = child.F;
 				cycle_end = root;
 				cur_path.clear();
 				return;
@@ -88,32 +113,35 @@ bool print_cycle(const V<Node>& graph){
 		reverse(all(cycle));
 		cycle.pb(cycle_start+1);
 
-
-		cout << cycle.size() << nl;
-		cout << cycle << nl;
+		for(auto& v: cycle) cout << v << ' ';
+		cout << '\n';
 	}
-	return cycle;
 }
 
+
 void solve(){
-	int n, m;
+		int n, m;
 	cin >> n >> m;
 
 	V<Node> graph(n);
-	FOR(i, n)
-		graph[i].index = i;
 	FOR(i, m){
-		int a, b;
-		cin >> a >> b; a--, b--;
-		graph[a].adj_list.pb(b);
+		int a, b, c;
+		cin >> a >> b >> c; a--; b--;
+		graph[a].adj_list.pb({b, c});
 	}
 
-	if(!print_cycle(graph))
-		cout << "IMPOSSIBLE";
+	auto cyclic_edges = calc_dists_bf(0, graph);
+	if(!cyclic_edges.empty()){
+		V<Node> cyclic_graph(n);
+		for(auto& e: cyclic_edges)
+			{cyclic_graph[e[0]].adj_list.pb({e[1], e[2]});}
+		
+		cout << "YES" << nl;
+		print_cycle(cyclic_graph);
+	}
 }
 
 int main(){
-	FAST;
 	solve();
 	cout << nl;
 	

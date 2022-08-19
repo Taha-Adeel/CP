@@ -5,11 +5,14 @@ using namespace std;
 using vi = V<int>;
 #define FOR(i, n) for(int i = 0; i < (int)n; ++i)
 #define pb push_back
+#define all(v) v.begin(), v.end()
 
+enum class STATE {UNVISITED, PROCESSING, PROCESSED};
 struct Node{
 	int val;
 	vi  adj_list;
 	int parent = -1;
+	STATE state = STATE::UNVISITED;
 	bool visited = false;
 };
 
@@ -43,6 +46,30 @@ bool bfs(int start, int dest, V<Node>& graph){
 	}
 
 	return false;
+}
+
+// Returns the elements of a directed graph in a topological ordering(a appears before b if there is an edge from a to b)
+vi get_topological_ordering(V<Node>& graph){
+	vi topological_ordering;
+	function<void(int)> dfs = [&](int root){
+		graph[root].state = STATE::PROCESSING;
+		for(auto& child: graph[root].adj_list){
+			if(graph[child].state == STATE::UNVISITED)
+				dfs(child);
+			else if(graph[child].state == STATE::PROCESSING) throw "Cycle found";
+		}
+		graph[root].state = STATE::PROCESSED;
+		topological_ordering.pb(root+1);
+	};
+
+	FOR(i, graph.size()) 
+		if(graph[i].state == STATE::UNVISITED)
+			try{dfs(i);}
+			catch(const char* e){return vi{};}
+
+	reverse(all(topological_ordering));
+
+	return topological_ordering;
 }
 
 void input(){
