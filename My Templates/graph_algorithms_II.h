@@ -10,6 +10,7 @@ using vll = V<ll>;
 using pii = pair<int, int>;
 #define FOR(i, n) for(int i = 0; i < (int)n; ++i)
 #define pb push_back
+#define all(v) v.begin(), v.end()
 
 #define INF 1e15
 template <int N> using arr = array<int, N>;
@@ -119,6 +120,54 @@ auto calc_all_dists_fw(const V<Node>& graph){
 	
 	return distance;
 }
+
+// Prints a cycle in a directed/undirected graph;
+bool print_cycle(const V<Node>& _graph){
+	V<Node> graph = _graph;
+	bool cycle = false;
+	int cycle_start, cycle_end;
+	set<int> cur_path;
+	
+	function<void(int)> dfs = [&](int root){
+		if(cycle) return;
+		cur_path.insert(root);
+		for(auto& child: graph[root].adj_list){
+			// if(child == graph[root].parent) continue; // For undirected graph
+			if(!graph[child.F].visited){
+				graph[child.F].visited = true;
+				graph[child.F].parent = root;
+				dfs(child.F);
+			}
+			else if(!cycle && cur_path.find(child.F) != cur_path.end()){
+				cycle = true;
+				cycle_start = child.F;
+				cycle_end = root;
+				cur_path.clear();
+				return;
+			}
+		}
+		cur_path.erase(root);
+	};
+	
+	int n = graph.size();
+	FOR(i, n)
+		if(!graph[i].visited)
+			dfs(i);
+
+	if(cycle){
+		vi cycle;
+		for(int i = cycle_end; i != cycle_start; i = graph[i].parent)
+			cycle.pb(i+1);
+		cycle.pb(cycle_start+1);
+		reverse(all(cycle));
+		cycle.pb(cycle_start+1);
+
+		for(auto& v: cycle) cout << v << ' ';
+		cout << '\n';
+	}
+	return cycle;
+}
+
 
 void input(){
 	int n, m;
