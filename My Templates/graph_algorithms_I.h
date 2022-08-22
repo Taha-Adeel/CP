@@ -59,7 +59,7 @@ vi get_topological_ordering(V<Node>& graph){
 			else if(graph[child].state == STATE::PROCESSING) throw "Cycle found";
 		}
 		graph[root].state = STATE::PROCESSED;
-		topological_ordering.pb(root+1);
+		topological_ordering.pb(root);
 	};
 
 	FOR(i, graph.size()) 
