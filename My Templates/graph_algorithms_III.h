@@ -52,7 +52,7 @@ ll kruskals_algo(V<Node>& graph, V<tuple<int, int, int>>& edges){
 
 
 // Kosaraju's algorithm to find strongly connected components in O(n+m);
-// Get the in and out times for each node
+// Get the "structure"(Nodes in increasing order of finished processing order)
 void dfs1(int root, V<Node>& graph, stack<int>& structure){
 	graph[root].visited = true;
 	for(auto& child: graph[root].adj_list)
