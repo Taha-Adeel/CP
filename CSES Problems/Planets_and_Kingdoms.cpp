@@ -53,7 +53,7 @@ void dfs1(int root, V<Node>& graph, stack<int>& structure){
 	structure.push(root);
 }
 
-// Assumes edges are reversed in the graph
+// Generates the SCCs
 void dfs2(int root, V<Node>& graph, int component){
 	graph[root].component = component;
 	for(auto& c: graph[root].adj_list)
@@ -89,19 +89,7 @@ void kosaraju_algo(V<Node>& graph){
 		}
 	}
 	reverse(graph);
-}
-
-bool dfs(int root, int dest, V<Node>& graph){
-	static V<bool> discovered(graph.size(), false);
-	static bool ans = false;
-	discovered[root] = true;
-	for(auto& c: graph[root].adj_list){
-		if(!discovered[c] && ans == false){
-			if(c == dest) ans = true;
-			dfs(c, dest, graph);
-		}
-	}
-	return ans;
+	cout << num_of_scc << nl;
 }
 
 void solve(){
@@ -116,20 +104,12 @@ void solve(){
 
 	kosaraju_algo(graph);
 	FOR(i, n)
-		if(graph[i].component != graph[0].component){
-			cout << "NO" << nl;
-			if(!dfs(0, i, graph))
-				cout << 1 << ' ' << i+1 << nl;
-			else
-				cout << i+1 << ' ' << 1 << nl;
-			return;
-		}
-
-	pY
+		cout << graph[i].component << ' ';
 }
 
 int main(){
 	solve();
+	cout << nl;
 	
 	return 0;
 }
