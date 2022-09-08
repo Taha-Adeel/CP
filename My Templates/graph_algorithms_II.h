@@ -19,6 +19,7 @@ struct Node{
 	int val;
 	bool visited = false;
 	int parent = -1;
+	int set_size = 1;
 	ll dist = INF;
 	V<pii> adj_list;
 };
@@ -168,6 +169,35 @@ bool print_cycle(const V<Node>& _graph){
 	return cycle;
 }
 
+// Algorithm to get MST in O(mlogn)
+ll kruskals_algo(V<Node>& graph, V<tuple<int, int, int>>& edges){
+	auto ds = [&](int a){
+		while(graph[a].parent != -1)
+			a = graph[a].parent;
+		return a;
+	};
+	auto merge = [&](int a, int b){
+		int ds_a = ds(a), ds_b = ds(b);
+		if(graph[ds_a].set_size < graph[ds_b].set_size) swap(a, b), swap(ds_a, ds_b);
+
+		graph[ds_a].set_size += graph[ds_b].set_size;
+		graph[ds_b].parent = ds_a;
+	};
+
+	sort(all(edges));
+	ll min_cost = 0, edges_used = 0;
+	for(auto& [c, a, b]: edges){
+		if(ds(a) != ds(b)){
+			min_cost += c;
+			edges_used++;
+			merge(a, b);
+		}
+	}
+	if(edges_used != (int)graph.size()-1)
+		return -1;
+
+	return min_cost;
+}
 
 void input(){
 	int n, m;
