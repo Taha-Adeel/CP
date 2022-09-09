@@ -98,3 +98,25 @@ void kosaraju_algo(V<Node>& graph){
 	}
 	reverse(graph);
 }
+
+struct CondensedNode{
+	vi nodes;
+	set<int> adj_list;
+};
+
+// Replaces the SCCs with a single condensed node.
+V<CondensedNode> condense(V<Node>& graph){
+	int num_of_scc = 0;
+	for(auto& node: graph) 
+		num_of_scc = max(num_of_scc, node.component);
+
+	V<CondensedNode> condensed_graph(num_of_scc);
+	FOR(i, graph.size()){
+		condensed_graph[graph[i].component - 1].nodes.pb(i);
+		for(auto& v: graph[i].adj_list)
+			if(graph[v].component != graph[i].component)
+				condensed_graph[graph[i].component-1].adj_list.insert(graph[v].component-1);
+	}
+
+	return condensed_graph;
+}
