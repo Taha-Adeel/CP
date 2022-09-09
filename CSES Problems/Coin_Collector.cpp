@@ -37,62 +37,141 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-enum class STATE {UNVISITED, PROCESSING, PROCESSED};
 struct Node{
-	int coins;
-	ll max_coins = 0;
-	int parent = -1;
-	STATE state = STATE::UNVISITED;
-	vi out_adj_list;
-	vi in_adj_list;
+	int val;
+	int component = -1;
+	bool visited = false;
+	vi adj_list;
 };
 
-// Returns the elements of a directed graph in a topological ordering(a appears before b if there is an edge from a to b)
-vi get_topological_ordering(V<Node>& graph){
-	vi topological_ordering;
-	function<void(int)> dfs = [&](int root){
-		graph[root].state = STATE::PROCESSING;
-		for(auto& child: graph[root].out_adj_list){
-			if(graph[child].state == STATE::UNVISITED)
-				dfs(child);
-			else if(graph[child].state == STATE::PROCESSING) throw "Cycle found";
+// Get the "structure"(Nodes in increasing order of finished processing order)
+void dfs1(int root, V<Node>& graph, stack<int>& structure){
+	graph[root].visited = true;
+	for(auto& child: graph[root].adj_list)
+		if(!graph[child].visited)
+			dfs1(child, graph, structure);
+
+	structure.push(root);
+}
+
+// Generates the SCCs
+void dfs2(int root, V<Node>& graph, int component){
+	graph[root].component = component;
+	for(auto& c: graph[root].adj_list)
+		if(graph[c].component == -1)
+			dfs2(c, graph, component);
+}
+
+// Reverses all edges in the graph
+void reverse(V<Node>& graph){
+	int n = graph.size();
+	V<Node> reversed_graph = graph;
+	FOR(i, n) reversed_graph[i].adj_list.clear();
+	FOR(u, n)
+		for(auto& v: graph[u].adj_list)
+			reversed_graph[v].adj_list.pb(u);
+	graph = reversed_graph;
+}
+
+// Kosaraju's algorithm to find strongly connected components in O(n+m);
+void kosaraju_algo(V<Node>& graph){
+	int n = graph.size();
+	stack<int> structure;
+	FOR(i, n)
+		if(!graph[i].visited)
+			dfs1(i, graph, structure);
+
+	reverse(graph);
+	int num_of_scc = 0;
+	while(!structure.empty()){
+		int top = structure.top(); structure.pop();
+		if(graph[top].component == -1)
+			dfs2(top, graph, ++num_of_scc);
+	}
+	reverse(graph);
+}
+
+#define INF 1e18
+struct CondensedNode{
+	ll neg_val = 0;
+	vi nodes;
+	set<int> adj_list;
+	ll dist = INF;
+};
+
+// Replaces the SCCs with a single condensed node.
+V<CondensedNode> condense(V<Node>& graph){
+	int num_of_scc = 0;
+	for(auto& node: graph) 
+		num_of_scc = max(num_of_scc, node.component);
+
+	V<CondensedNode> condensed_graph(num_of_scc);
+	FOR(i, graph.size()){
+		condensed_graph[graph[i].component - 1].nodes.pb(i);
+		condensed_graph[graph[i].component - 1].neg_val -= graph[i].val;
+		for(auto& v: graph[i].adj_list)
+			if(graph[v].component != graph[i].component)
+				condensed_graph[graph[i].component-1].adj_list.insert(graph[v].component-1);
+	}
+
+	return condensed_graph;
+}
+
+// Shortest Path First Algorithm (SPFA), which is a further optimization of Bellman-Ford. Average case time is better. Worst case = O(nm)
+void calc_dists_spfa(int root, V<CondensedNode>& graph){
+	graph[root].dist = 0;
+	deque<int> q; // Use priority queue for better time complexity(Almost similar to Dijkstra's)
+	V<bool> in_q(graph.size(), false);
+	q.push_back(root); in_q[root] = true;
+	while(!q.empty()){
+		int u = q.front(); q.pop_front(); in_q[u] = false;
+		for(auto& v: graph[u].adj_list){
+			ll w = graph[v].neg_val;
+			if(graph[u].dist + w < graph[v].dist){
+				graph[v].dist = graph[u].dist + w;
+				if(!in_q[v]){
+					// Smallest Lable First Optimiztion
+					if(graph[v].dist < graph[q.front()].dist)
+						q.push_front(v), in_q[v] = true;
+					else
+						q.push_back(v), in_q[v] = true;
+				}
+			}
 		}
-		graph[root].state = STATE::PROCESSED;
-		topological_ordering.pb(root);
-	};
-
-	FOR(i, graph.size())
-		if(graph[i].state == STATE::UNVISITED)
-			try{dfs(i);}
-			catch(const char* e){return vi{};}
-
-	reverse(all(topological_ordering));
-
-	return topological_ordering;
+	}
 }
 
 void solve(){
 	int n, m;
 	cin >> n >> m;
 	V<Node> graph(n);
-	FOR(i, n) cin >> graph[i].coins, graph[i].max_coins = graph[i].coins;
+	FOR(i, n) cin >> graph[i].val;
+
 	FOR(i, m){
-		int u, v;
-		cin >> u >> v; u--, v--;
-		graph[u].out_adj_list.pb(v);
-		graph[v].in_adj_list.pb(u);
+		int a, b;
+		cin >> a >> b; a--, b--;
+		graph[a].adj_list.pb(b);
 	}
 
-	ll ans = 0;
-	for(auto& i: get_topological_ordering(graph)){
-		ll max_child = 0;
-		for(auto& e: graph[i].in_adj_list)
-			max_child = max(max_child, graph[e].max_coins);
-		graph[i].max_coins += max_child;
-		ans = max(ans, graph[i].max_coins);
-	}
+	// We connect all SCCs to make a DAG
+	kosaraju_algo(graph);
+	auto condensed_graph = condense(graph);
 
-	cout << ans;
+	// We insert a dummy start node from which we can traverse to any room
+	CondensedNode dummy_start_node;
+	FOR(i, condensed_graph.size())
+		dummy_start_node.adj_list.insert(i);
+	condensed_graph.pb(dummy_start_node);
+
+	// We find the longest path by finding the shortest path with all weights made negative
+	calc_dists_spfa(condensed_graph.size() - 1, condensed_graph);
+
+	ll max_val_sum = 0;
+	for(auto& x: condensed_graph)
+		max_val_sum = min(max_val_sum, x.dist);
+	max_val_sum *= -1;
+
+	cout << max_val_sum;
 }
 
 int main(){

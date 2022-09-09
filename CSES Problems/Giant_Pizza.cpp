@@ -106,7 +106,7 @@ V<CondensedNode> condense(V<Node>& graph){
 		condensed_graph[graph[i].component - 1].nodes.pb(i);
 		for(auto& v: graph[i].adj_list)
 			if(graph[v].component != graph[i].component)
-				condensed_graph[graph[i].component].adj_list.insert(graph[v].component);
+				condensed_graph[graph[i].component-1].adj_list.insert(graph[v].component-1);
 	}
 
 	return condensed_graph;
