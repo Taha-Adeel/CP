@@ -36,51 +36,62 @@ using vi  = V<int>;
 using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+
 struct Node{
-	priority_queue<ll> dist;
+	ll dist = 1e17;
+	ll num_of_min_paths = 0;
+	int min_path_len = INT_MAX;
+	int max_path_len = INT_MIN;
+	bool visited = false;
 	V<pii> adj_list;
 };
 
-// Dijkstra's algorithm to find the k shortest paths from the starting node to all nodes of a weighted graph with positive weights in O(n + m log(m))
-void calc_dists_dijkstra(int root, V<Node>& graph, int k){
-	priority_queue<pll, V<pll>, greater<pll>> q;
-	graph[root].dist.push(0);
-	q.push({0, root});
+// Dijkstra's algorithm to find shortest paths from the starting node to all nodes of a weighted graph with positive weights in O(n + m log(m))
+void calc_dists_dijkstra(int root, V<Node>& graph){
+	struct compNodeDist{ const V<Node>& graph; compNodeDist(const V<Node>& _graph): graph(_graph){}
+		bool operator()(int u, int v){return graph[u].dist >= graph[v].dist;};
+	};
+	priority_queue<int, vi, compNodeDist> q(graph);
+	graph[root].dist = 0;
+	graph[root].num_of_min_paths = 1;
+	graph[root].min_path_len = 0; graph[root].max_path_len = 0;
+	q.push(root);
 	while(!q.empty()){
-		auto [d, u] = q.top(); q.pop();
-		if(d > graph[u].dist.top()) continue;
+		int u = q.top(); q.pop();
+		if(graph[u].visited) continue;
+		graph[u].visited = true;
 		for(auto& [v, w]: graph[u].adj_list){
-			if(graph[v].dist.size() < k){
-				graph[v].dist.push(d + w);
-				q.push({d+w, v});
+			if(graph[u].dist + w < graph[v].dist){
+				graph[v].dist = graph[u].dist + w;
+				graph[v].num_of_min_paths = graph[u].num_of_min_paths;
+				graph[v].min_path_len = graph[u].min_path_len + 1;
+				graph[v].max_path_len = graph[u].max_path_len + 1;
+				q.push(v);
 			}
-			else if(d+w < graph[v].dist.top()){
-				graph[v].dist.pop();
-				graph[v].dist.push(d + w);
-				q.push({d+w, v});
+			else if (graph[u].dist + w == graph[v].dist){
+				graph[v].num_of_min_paths += graph[u].num_of_min_paths;
+				graph[v].num_of_min_paths %= MOD;
+				graph[v].min_path_len = min(graph[v].min_path_len, graph[u].min_path_len + 1);
+				graph[v].max_path_len = max(graph[v].max_path_len, graph[u].max_path_len + 1);
+				q.push(v);
 			}
 		}
 	}
 }
 
 void solve(){
-	int n, m, k;
-	cin >> n >> m >> k;
-
+	int n, m;
+	cin >> n >> m;
 	V<Node> graph(n);
 	FOR(i, m){
 		int a, b, c;
-		cin >> a >> b >> c; a--; b--;
+		cin >> a >> b >> c; a--, b--;
 		graph[a].adj_list.pb({b, c});
 	}
-	calc_dists_dijkstra(0, graph, k);
 
-	vll ans;
-	FOR(i, k)
-		ans.pb(graph[n-1].dist.top()), graph[n-1].dist.pop();
-	reverse(all(ans));
+	calc_dists_dijkstra(0, graph);
 
-	cout << ans;
+	cout << graph[n-1].dist << ' ' << graph[n-1].num_of_min_paths << ' ' << graph[n-1].min_path_len << ' ' << graph[n-1].max_path_len;
 }
 
 int main(){
