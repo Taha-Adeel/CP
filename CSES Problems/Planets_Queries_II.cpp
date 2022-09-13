@@ -14,7 +14,7 @@ template<class T> struct V: vector<T>{using vector<T>::vector;
 	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v){in >> i;} return in;}
 };
 #define pY {cout << "YES"; return;}
-#define pN {cout << "NO";  return;}
+#define pN {cout << "-1\n";  continue;}
 
 #define FOR(i, n)                for(int i = 0; i < (int)n; ++i)
 #define FOR1(i, n)               for(int i = 1; i <= (int)n; ++i)
@@ -37,9 +37,10 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-#define MxN 200001
+#define MxN 200005
+#define logkMx 31
  
-int t[MxN], cycle_size[MxN], component[MxN], dist[MxN];
+int t[MxN], kth_next[MxN][logkMx], cycle_size[MxN], component[MxN], dist[MxN];
 bool cycle[MxN];
  
 pii cycle_start[MxN];
@@ -70,10 +71,33 @@ void dfs(int root){
 		} while (cur_node != cycle_start[root].F);
 	}
 }
+
+void dfs(int root, int k, V<bool>& visited){
+	visited[root] = true;
+	int c = t[root];
+	if(k == 0) 
+		kth_next[root][k] = c;
+	else
+		kth_next[root][k] = kth_next[kth_next[root][k-1]][k-1];
+	
+	if(!visited[c])
+		dfs(c, k, visited);
+}
+
+int get_kth_successor(int x, int k){
+	if(k == -1) return x;
+	int next = kth_next[x][0];
+	for(int mask = 0; (1<<mask) <= k; mask++)
+		if((1<<mask) & k)
+			next = kth_next[next][mask];
+	
+	return next;
+}
+
  
 void solve(){
-	int n;
-	cin >> n;
+	int n, q;
+	cin >> n >> q;
 	V<bool> start_node(n, true);
 	FOR(i, n){
 		cin >> t[i]; t[i]--;
@@ -88,19 +112,55 @@ void solve(){
 	FOR(i, n)
 		if(dist[i] == -1)
 			dfs(i);
+
+	FOR(k, logkMx){
+		V<bool> visited(n, false);
+		FOR(i, n)
+			if(!visited[i])
+				dfs(i, k, visited);
+	}
  
-	FOR(i, n){
-		if(cycle[i])
-			cout << cycle_size[i] << ' ';
-		else
-			cout << cycle_start[component[i]].S - dist[i] + cycle_size[cycle_start[component[i]].F] << ' ';
+	FOR(_, q){
+		int a, b;
+		cin >> a >> b; a--, b--;
+		if(a == b) {cout << 0 << nl; continue;}
+
+		if(component[a] == component[b]){
+			int d = dist[b] - dist[a];
+			if(cycle[a] && cycle[b])
+				cout << (d > 0 ? d : cycle_size[a] + d) << nl;
+			else if(!cycle[a] && !cycle[b])
+				cout << (d > 0 ? d : -1) << nl;
+			else if (cycle[a])
+				pN
+			else
+				cout << d << nl;
+		}
+		else{
+			if(component[cycle_start[component[b]].F] != component[cycle_start[component[a]].F])
+				pN
+			
+			if(cycle[a] && !cycle[b]) pN
+			if(cycle[b]) 
+				cout << cycle_start[component[a]].S - dist[a] + dist[b] - dist[cycle_start[component[a]].F] << nl;
+			else{
+				if(cycle_start[component[b]].F != cycle_start[component[a]].F)
+					pN
+				int d1 = cycle_start[component[a]].S - dist[a];
+				int d2 = cycle_start[component[b]].S - dist[b];
+				if(d2 >= d1) pN
+				if(get_kth_successor(a, d1 - d2 - 1) != b)
+					pN
+				else
+					cout << d1 - d2 << nl;
+			}	
+		}
 	}
 }
- 
+
 int main(){
 	FAST;
 	solve();
-	cout << nl;
 	
 	return 0;
 }

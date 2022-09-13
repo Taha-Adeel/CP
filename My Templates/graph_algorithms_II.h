@@ -24,8 +24,8 @@ struct Node{
 	V<pii> adj_list;
 };
 
-V<arr<3>> get_edge_list(const V<Node>& graph){
-	V<arr<3>> edges; // List of all edges
+V<tuple<int, int, int>> get_edge_list(const V<Node>& graph){
+	V<tuple<int, int, int>> edges; // List of all edges
 	FOR(i, graph.size())
 		for(auto& edge: graph[i].adj_list)
 			edges.pb({i, edge.F, edge.S});
@@ -39,8 +39,8 @@ void calc_dists_bf_unoptimized(int root, V<Node>& graph){
 	
 	graph[root].dist = 0;
 	FOR(i, graph.size()){
-		for(auto& e: edges)
-			graph[e[1]].dist = min(graph[e[1]].dist, graph[e[0]].dist + e[2]);
+		for(auto& [u, v, w]: edges)
+			graph[v].dist = min(graph[v].dist, graph[u].dist + w);
 	}
 }
 
@@ -51,9 +51,9 @@ void calc_dists_bf(int root, V<Node>& graph){
 	graph[root].dist = 0;
 	FOR(i, graph.size()){
 		bool final = true;
-		for(auto& e: edges){
-			if(graph[e[0]].dist + e[2] < graph[e[1]].dist){
-				graph[e[1]].dist = graph[e[0]].dist + e[2];
+		for(auto& [u, v, w]: edges){
+			if(graph[u].dist + w < graph[v].dist){
+				graph[v].dist = graph[u].dist + w;
 				final = false;
 			}
 		}
@@ -97,8 +97,7 @@ void calc_dists_dijkstra(int root, V<Node>& graph){
 		int u = q.top(); q.pop();
 		if(graph[u].visited) continue;
 		graph[u].visited = true;
-		for(auto& e: graph[u].adj_list){
-			int v = e.F, w = e.S;
+		for(auto& [v, w]: graph[u].adj_list){
 			if(graph[u].dist + w < graph[v].dist){
 				graph[v].dist = graph[u].dist + w;
 				q.push(v);
