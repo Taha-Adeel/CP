@@ -44,32 +44,19 @@ ll query(ll a, ll b){
 	return n;
 }
 
-bool check(ll n){
-	return query(1, n+1) == -1 && query(1, n) != -1;
-}
-
 void solve(){
-	ll cur_min = 13, q = 1;
-	set<ll> qs; qs.insert(1);
-	for(ll i = 2; i < 52; i++){
-		q = (rand()%cur_min) + 1;
-		int j = 0;
-		while((qs.count(q) || q == 0)){
-			q = ((q + 1)%(cur_min+1));
-			if(j++ > cur_min) cur_min *= 2;
+	ll cur_min = 13;
+	for(ll i = 2; i < 26; i++){
+		ll a = query(1, i), b = query(i, 1);
+		if(a == -1){
+			cout << "! " << i-1 << endl;
+			return;
 		}
-		qs.insert(q);
-		// cout << q << ' ';
-		ll a = query(1, q), b = query(q, 1);
-		if(a == 0 || b == 0) break;
-		if(a == -1 || b == -1) continue;
-		cur_min = max({cur_min, a, b});
-		if(a != b || check(a+b)){
-			cout << "! " << (a + b)%(ll(1e18 + 1)) << endl;
+		else if(a != b){
+			cout << "! " << a + b << endl;
 			return;
 		}
 	}
-	cout << "! 200" << endl;
 }
 
 int main(){
