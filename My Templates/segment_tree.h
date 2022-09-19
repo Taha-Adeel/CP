@@ -16,8 +16,8 @@ class SegmentTree{
 	T IDENTITY_VAL;				// The identity value for the above function
 
 	int parent(int cur_node)		{return (cur_node - 1)/2;}
-	int left_child(int cur_node)	{return 2 * cur_node + 1;}
-	int right_child(int cur_node)	{return 2 * cur_node + 2;}
+	int left(int cur_node)	{return 2 * cur_node + 1;}
+	int right(int cur_node)	{return 2 * cur_node + 2;}
 
 	// A recursive function that constructs Segment Tree for array[l..r].
 	T constructSTUtil(int cur_node, int l, int r)
@@ -29,7 +29,7 @@ class SegmentTree{
 			tree[cur_node].val = arr[tree[cur_node].l];
 		else{
 			int m = (tree[cur_node].l + tree[cur_node].r)/2;
-			tree[cur_node].val = func(constructSTUtil(left_child(cur_node), l, m), constructSTUtil(right_child(cur_node), m + 1, r));
+			tree[cur_node].val = func(constructSTUtil(left(cur_node), l, m), constructSTUtil(right(cur_node), m + 1, r));
 		}
 
 		return tree[cur_node].val;
@@ -41,7 +41,7 @@ class SegmentTree{
 		if(tree[cur_node].l == tree[cur_node].r && tree[cur_node].l == i)
 			tree[cur_node].val = arr[tree[cur_node].l];
 		else if(i >= tree[cur_node].l && i <= tree[cur_node].r)
-			tree[cur_node].val = func(updateUtil(left_child(cur_node), i), updateUtil(right_child(cur_node), i));
+			tree[cur_node].val = func(updateUtil(left(cur_node), i), updateUtil(right(cur_node), i));
 
 		return tree[cur_node].val;
 	}
@@ -54,7 +54,7 @@ class SegmentTree{
 		else if(tree[cur_node].r < l || tree[cur_node].l > r)
 			return IDENTITY_VAL;
 		else
-			return func(queryUtil(left_child(cur_node), l, r), queryUtil(right_child(cur_node), l, r));
+			return func(queryUtil(left(cur_node), l, r), queryUtil(right(cur_node), l, r));
 	}
 
 public:
