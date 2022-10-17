@@ -37,28 +37,22 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-V<pii> coprimes;
-
 void solve(){
 	int n;
 	cin >> n;
 	vi a(n);
 	cin >> a;
 
-	ll ans = -1;
+	int ans = -1;
 	auto index = a.indices();
-	for(auto& [a, b]: coprimes)
-		if(index[a] != 0 && index[b] != 0)
-			ans = max(ans, (ll)index[a] + index[b] + 2LL);
-	
+	for(auto& [x, i]: index)
+		for(auto& [y, j]: index)
+			if(gcd(x, y) == 1) ans = max(ans, i + j + 2);
+		
 	cout << ans;
 }
 
 int main(){
-	FOR1(i, 1000)
-		FOR_RANGE(j, i, 1001)
-			if(gcd(i, j) == 1) coprimes.pb({i, j});
-
 	FAST;
 	int T;
 	cin >> T;
