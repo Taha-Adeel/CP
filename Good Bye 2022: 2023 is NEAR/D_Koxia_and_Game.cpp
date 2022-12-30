@@ -38,16 +38,54 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+struct Node{
+	bool visited = false;
+	vi adj_list;
+};
+
+void dfs(int root, V<Node>& graph, int& node_count, int& edge_count, int& self_edge){
+	graph[root].visited = true;
+	node_count++;
+	edge_count += graph[root].adj_list.size();
+	for(auto& i: graph[root].adj_list)
+		if(!graph[i].visited)
+			dfs(i, graph, node_count, edge_count, self_edge);
+		else if(i == root)
+			self_edge++;
+}
+
 void solve(){
 	int n;
 	cin >> n;
 	vi a(n), b(n);
 	cin >> a >> b;
 
+	V<Node> graph(n);
+	FOR(i, n)
+		graph[--a[i]].adj_list.push_back(--b[i]),
+		graph[b[i]].adj_list.push_back(a[i]);
 	
+	ll ans = 1;
+	FOR(i, n){
+		if(!graph[i].visited){
+			int node_count = 0, edge_count = 0, self_edge = 0;
+			dfs(i, graph, node_count, edge_count, self_edge);
+
+			if(edge_count == 2 * node_count)
+				if(self_edge)
+					ans = (ans * n) % MOD;
+				else
+					ans = (ans * 2) % MOD;
+			else
+				ans = 0;
+		}
+	}
+
+	cout << ans;
 }
 
 int main(){
+	FAST;
 	int T;
 	cin >> T;
 	FOR(t, T){
