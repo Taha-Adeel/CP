@@ -38,32 +38,27 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-void solve(){
-	string s;
-	cin >> s;
+// Extended Euclidean Algorithm to find x, y such that ax + by = gcd(a, b)
+pair<ll, ll> extended_euclid(ll a, ll b){
+	if(b == 0) return {1, 0};
+	auto [x, y] = extended_euclid(b, a%b);
+	return {y, x - y*(a/b)};
+}
 
-	int n = s.size();
-	
-	if(s[0] == 'a'){
-		int first_b = find(all(s), 'b') - s.begin();
-		if(first_b < n-1)
-			cout << s.substr(0, first_b) << ' ' << s.substr(first_b, n-first_b-1) << ' ' << s[n-1]	;
-		else if(first_b == n-1)
-			cout << s.substr(0, n-2) << ' ' << "a" << ' ' << "b";
-		else
-			cout << "a" << ' ' << s.substr(1, n-2) << ' ' << "a";
-	}
-	else{
-		int first_a = find(all(s), 'a') - s.begin();
-		if(first_a < n-1)
-			cout << s.substr(0, first_a) << ' ' << "a" << ' ' << s.substr(first_a+1, n);
-		else
-			cout << "b" << ' ' << s.substr(1, n-2) << ' ' << s[n-1];
-	}
+void solve(){
+	ll m, n;
+	cin >> m >> n;
+
+	auto [u, v] = extended_euclid(m, n);
+	__int128 a = m - n%m, b = n - m%n, lcm = (m*n)/gcd(m,n);
+	ll ans = (b + n*((a-b)/gcd(m,n))*v)%(lcm);
+	if(ans < 0) ans += lcm;
+	if(ans == 0) ans = m;
+	cout << ans;
+	assert((ans+m)%n == 0 && (ans+n)%m == 0);
 }
 
 int main(){
-	FAST;
 	int T;
 	cin >> T;
 	FOR(t, T){

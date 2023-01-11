@@ -39,27 +39,39 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	string s;
-	cin >> s;
+	int n;
+	cin >> n;
+	vi a(n);
+	cin >> a;
 
-	int n = s.size();
-	
-	if(s[0] == 'a'){
-		int first_b = find(all(s), 'b') - s.begin();
-		if(first_b < n-1)
-			cout << s.substr(0, first_b) << ' ' << s.substr(first_b, n-first_b-1) << ' ' << s[n-1]	;
-		else if(first_b == n-1)
-			cout << s.substr(0, n-2) << ' ' << "a" << ' ' << "b";
-		else
-			cout << "a" << ' ' << s.substr(1, n-2) << ' ' << "a";
+	int total_or = 0;
+	FOR(i, n) total_or |= a[i];
+
+	auto check = [&](int x){
+		if((a[0]|x) != x) return false;
+		int cur_i = 0;
+		while(cur_i < n){
+			int best_i = cur_i, max_i = min(cur_i + a[cur_i] + 1, n);
+			for(int i = cur_i; i < min(cur_i + a[cur_i] + 1, n); i++)
+				if((a[i]|x) == x && (min(i+a[i]+1, n) >= max_i || i == n-1)) 
+					best_i = i, 
+					max_i = min(i+a[i]+1, n);
+			if(best_i == n-1) break;
+			if(best_i == cur_i) return false;
+			cur_i = best_i;
+		}
+		return true;
+	};
+
+	int l = 0, r = total_or;
+	while(l < r){
+		int m = (l+r)/2;
+		if(check(m)) r = m;
+		else l = m+1;
 	}
-	else{
-		int first_a = find(all(s), 'a') - s.begin();
-		if(first_a < n-1)
-			cout << s.substr(0, first_a) << ' ' << "a" << ' ' << s.substr(first_a+1, n);
-		else
-			cout << "b" << ' ' << s.substr(1, n-2) << ' ' << s[n-1];
-	}
+
+	if(check(l)) cout << l;
+	else cout << -1;
 }
 
 int main(){

@@ -39,31 +39,13 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	string s;
-	cin >> s;
-
-	int n = s.size();
+	int n;
+	cin >> n;
 	
-	if(s[0] == 'a'){
-		int first_b = find(all(s), 'b') - s.begin();
-		if(first_b < n-1)
-			cout << s.substr(0, first_b) << ' ' << s.substr(first_b, n-first_b-1) << ' ' << s[n-1]	;
-		else if(first_b == n-1)
-			cout << s.substr(0, n-2) << ' ' << "a" << ' ' << "b";
-		else
-			cout << "a" << ' ' << s.substr(1, n-2) << ' ' << "a";
-	}
-	else{
-		int first_a = find(all(s), 'a') - s.begin();
-		if(first_a < n-1)
-			cout << s.substr(0, first_a) << ' ' << "a" << ' ' << s.substr(first_a+1, n);
-		else
-			cout << "b" << ' ' << s.substr(1, n-2) << ' ' << s[n-1];
-	}
+	display(n==6);
 }
 
 int main(){
-	FAST;
 	int T;
 	cin >> T;
 	FOR(t, T){

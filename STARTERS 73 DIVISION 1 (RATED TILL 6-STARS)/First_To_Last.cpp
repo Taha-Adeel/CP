@@ -39,27 +39,33 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	string s;
-	cin >> s;
+	int N, M, k;
+	cin >> N >> M >> k;
+	map<int, vi> special;
+	FOR(i, k){
+		int x, y;
+		cin >> x >> y;
+		if(x == N || y == M) continue;
+		special[x].push_back(y);
+	}
 
-	int n = s.size();
+	for(auto& [x, v]: special)
+		v.sort_dsc();
+
+	vi special_cells;
+	for(auto& [x, v]: special)
+		for(auto& y: v)
+			special_cells.push_back(y);
 	
-	if(s[0] == 'a'){
-		int first_b = find(all(s), 'b') - s.begin();
-		if(first_b < n-1)
-			cout << s.substr(0, first_b) << ' ' << s.substr(first_b, n-first_b-1) << ' ' << s[n-1]	;
-		else if(first_b == n-1)
-			cout << s.substr(0, n-2) << ' ' << "a" << ' ' << "b";
-		else
-			cout << "a" << ' ' << s.substr(1, n-2) << ' ' << "a";
-	}
-	else{
-		int first_a = find(all(s), 'a') - s.begin();
-		if(first_a < n-1)
-			cout << s.substr(0, first_a) << ' ' << "a" << ' ' << s.substr(first_a+1, n);
-		else
-			cout << "b" << ' ' << s.substr(1, n-2) << ' ' << s[n-1];
-	}
+	// Get length of LIS in special_cells
+	int n = special_cells.size(), ans = 0;
+	vll dp(n, INT_MAX);
+	FOR(i, n)
+		*lower_bound(all(dp), special_cells[i]) = special_cells[i];
+	while(ans < n && dp[ans] != INT_MAX)
+		ans++;
+
+	cout << N + M - 2 - ans;
 }
 
 int main(){
