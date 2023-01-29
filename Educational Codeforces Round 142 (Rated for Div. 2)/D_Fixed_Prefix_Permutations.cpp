@@ -38,46 +38,48 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+ll hash_vi(vi& a){
+	ll h = 0;
+	for(auto& ai: a) h = (h*16) + ai;
+	return h;
+}
+
 void solve(){
 	int n, m;
 	cin >> n >> m;
 	V<vi> a(n, vi(m));
 	cin >> a;
 
-	V<V<vi>> sorted_as(m, V<vi>(n, vi(m)));
-	FOR(i, m) sorted_as[i] = a;
+	vll hashes(n);
+	FOR(i, n) hashes[i] = hash_vi(a[i]);
+	V<vi> sorted_as(m, vi(n));
+	FOR(i, m) iota(all(sorted_as[i]), 0);
 	FOR(i, m){
-		auto cmp = [i](const vi& a, const vi& b){ return a[i] < b[i]; };
+		auto cmp = [&](const int& x, const int& y){ return a[x][i] < a[y][i]; };
 		sort(all(sorted_as[i]), cmp);
 	}
 
 	for(auto& ai: a){
-		int k = 0;
-		vi target_lb(m), target_ub(m);
+		ll k = 0, cur_set_hash = 0, mask = 0;
 		while(k < m){
-			target_lb[ai[k]-1] = k+1;
-			target_ub[ai[k]-1] = k+2;
-			auto cmp = [&](const vi& a1, const vi& a2){ return a1[ai[k]-1] < a2[ai[k]-1]; };
+			cur_set_hash |= ((k+1) << ((m - ai[k])*4));
+			mask |= (15LL << ((m - ai[k])*4));
 
-			int l = lower_bound(all(sorted_as[ai[k]-1]), target_lb, cmp) - sorted_as[ai[k]-1].begin();
-			int r = lower_bound(all(sorted_as[ai[k]-1]), target_ub, cmp) - sorted_as[ai[k]-1].begin();
+			auto cmp = [&](const int& x, const int& y){return a[x][ai[k]-1] < y; };
+
+			int l = lower_bound(all(sorted_as[ai[k]-1]), k+1, cmp) - sorted_as[ai[k]-1].begin();
+			int r = lower_bound(all(sorted_as[ai[k]-1]), k+2, cmp) - sorted_as[ai[k]-1].begin();
 			
 			if(l == r) break;
 			bool good = false;
 			for(int i = l; i < r; i++){
-				bool check_next = false;
-				for(int kk = 0; kk < k; kk++){
-					if(sorted_as[ai[k]-1][i][ai[kk]-1] != kk+1){
-						check_next = true;
-						break;
-					}
+				if((hashes[sorted_as[ai[k]-1][i]] & mask) == cur_set_hash){
+					good = true;
+					k++;
+					break;
 				}
-				if(check_next) continue;
-				good = true;
-				break;
 			}
 			if(!good) break;
-			k++;
 		}
 		cout << k << ' ';
 	}
