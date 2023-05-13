@@ -21,7 +21,7 @@ vi kmp_algo(string& s) {
 	return pi_s;
 }
 
-// Returns z s.t z[i] = largest k s.t s[0...k] == s[i...(i+k)] (Possible off by one errors in the description(function in correct))
+// Returns z s.t z[i] = largest  k < n s.t s[0...(k-1)] == s[(i)...(i+(k-1))]
 vi z_function(string& s) {
 	int n = s.size();
 	vi z(n, 0);
