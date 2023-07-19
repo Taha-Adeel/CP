@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define FAST ios::sync_with_stdio(0); cin.tie(0)
+template<class T> struct V: vector<T>{using vector<T>::vector;
+	void sort()			{std::sort(this->begin(), this->end());}
+	void sort_dsc() 	{std::sort(this->begin(), this->end(), greater<T>());}
+	auto sum() 			{T sum = 0; for(auto& i: *this) sum += i; return sum;}
+	auto freqs() 		{map<T, int> freq; for(auto& i: *this) freq[i]++; return freq;}
+	auto indices()		{int n=this->size(); map<T, V<int>> ii; for(int i=0; i<n; i++) ii[(*this)[i]].push_back(i); return ii;}
+	auto prefix_sums() 	{int n=this->size(); V<T> ps(n+1,0); for(int i=0; i<n; i++) ps[i+1] = ps[i]+(*this)[i]; return ps;}
+	friend ostream& operator<<(ostream& out, const V<T>& v) {for(auto& i: v) out << i << ' '; return out;}
+	friend istream& operator>>(istream& in, V<T>& v) {for(auto& i: v) in >> i; return in;}
+};
+#define pY {cout << "YES"; return;}
+#define pN {cout << "NO";  return;}
+#define display(x) if(x) pY else pN
+
+#define FOR(i, n)                for(int i = 0; i < (int)n; ++i)
+#define FOR1(i, n)               for(int i = 1; i <= (int)n; ++i)
+#define ROF(i, n)                for(int i = (int)n-1; i >= 0; --i)
+#define all(v)                   v.begin(), v.end()
+#define rall(v)                  v.rbegin(), v.rend()
+
+#define F  first
+#define S  second
+#define pb push_back
+#define lb lower_bound
+#define ub upper_bound
+constexpr char nl = '\n';
+constexpr int MOD = 1000000007;
+using ll  = long long int;
+using pii = pair<int,int>;
+using pll = pair<ll,ll>;
+using vi  = V<int>;
+using vll = V<ll>;
+
+/*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+
+int mod(int a, int b){
+	return (a%b + b)%b;
+}
+
+int get_ans(vi& a, vi x){
+	int ans = 0;
+	int n = a.size();
+
+	FOR(i, n)
+		ans += mod(x[i%3] - a[i], 3);
+	return ans;
+}
+
+void solve(){
+	int n; cin >> n;
+	vi a(n); cin >> a;
+
+	FOR(i, n) a[i] %= 3;
+
+	int ans = min({get_ans(a, {0, 1, 2}), get_ans(a, {0, 2, 1}), get_ans(a, {1, 0, 2}), get_ans(a, {1, 2, 0}), get_ans(a, {2, 0, 1}), get_ans(a, {2, 1, 0})});
+	ans = min({ans, get_ans(a, {0, 0, 0}), get_ans(a, {1, 1, 1}), get_ans(a, {2, 2, 2})});
+
+	cout << ans;
+}
+
+int main(){
+	int T;
+	cin >> T;
+	FOR(t, T){
+		solve();
+		cout << nl;
+	}
+	
+	return 0;
+}
