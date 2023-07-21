@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 using vi = vector<int>;
@@ -44,3 +45,52 @@ vi z_function_trivial(string& s) {
 			++z[i];
 	return z;
 }
+
+
+class TrieNode{
+public:
+	TrieNode* parent = nullptr;
+	map<char, TrieNode*> children;
+	char c;
+	int freq = 0;
+	TrieNode(char c = ' '): c(c){}
+};
+
+
+class Trie{
+public:
+	TrieNode* root = new TrieNode();
+	void add(string s){
+		TrieNode* curr = root;
+		curr->freq++;
+		for(auto& c: s){
+			if(curr->children.count(c)==0){
+				curr->children[c] = new TrieNode(c);
+				curr->children[c]->parent = curr;
+			}
+			curr = curr->children[c];
+			curr->freq++;
+		}
+	}
+
+	bool remove(string s){
+		TrieNode* curr = root;
+		
+		for(auto& c: s){
+			if(curr->children.count(c)==0) return false;
+			curr = curr->children[c];
+		}
+
+		TrieNode* parent = curr->parent;
+		while(curr != nullptr){
+			curr->freq--;
+			if(curr->freq == 0){
+				parent->children.erase(curr->c);
+				delete curr;
+			}
+			curr = parent;
+			if(curr != nullptr) parent = curr->parent;
+		}
+		return true;
+	}
+};
