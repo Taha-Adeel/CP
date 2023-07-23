@@ -40,7 +40,7 @@ using vll = V<ll>;
 
 struct Node{
 	V<pll> adj_list;
-	ll dist_from_root = -1;
+	ll dist_from_root = 1e18;
 };
 
 void solve(){
@@ -55,13 +55,13 @@ void solve(){
 	}
 
 	queue<ll> q;
-	FOR(i, n) if(nodes[i].dist_from_root == -1){
+	FOR(i, n) if(nodes[i].dist_from_root == 1e18){
 		nodes[i].dist_from_root = 0;
 		q.push(i);
 		while(!q.empty()){
 			ll cur = q.front(); q.pop();
 			for(auto& [nei, dist]: nodes[cur].adj_list){
-				if(nodes[nei].dist_from_root == -1){
+				if(nodes[nei].dist_from_root == 1e18){
 					nodes[nei].dist_from_root = nodes[cur].dist_from_root + dist;
 					q.push(nei);
 				}
