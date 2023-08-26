@@ -39,14 +39,15 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve(){
-	ll m, k, a1, ak; cin >> m >> k >> a1 >> ak;
+	int m, k, a1, ak; cin >> m >> k >> a1 >> ak;
 
-	ll ans = 0, conv_a1 = (a1-1)/k;
-	a1 -= conv_a1 * k;
-	ak += conv_a1;
-
-	ans += max((m % k) - a1, 0LL);
-	ans += max(m/k - ak - (m%k == 0 && a1 == k), 0LL);
+	int taken_k = m / k;
+	int taken_1 = m % k;
+	int taken_fancy_1 = max(0, taken_1 - a1);
+	int left_regular_1 = max(0, a1 - taken_1);
+	int taken_fancy_k = max(0, taken_k - ak);
+	int to_replace = min(left_regular_1 / k, taken_fancy_k);
+	int ans = taken_fancy_1 + taken_fancy_k - to_replace;
 
 	cout << ans;
 }
