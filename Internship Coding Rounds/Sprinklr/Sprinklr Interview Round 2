@@ -1,0 +1,91 @@
+            1                        |                       1
+         /       \                    |                    /      \
+     2            3                 |                3          2
+       \         /     \              |	       /    \       /
+        4     5        6           |             6       5   4
+
+
+Struct Node{
+	Int val;
+	Node* left;
+	Node* right;
+};
+
+Void flip(Node* root){
+	if(root == NULL) return;
+	flip(root->left);
+	flip(root->right);
+	
+	swap(root->left, root->right);
+}
+
+// Time complexity : O(n)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   5-6-3-2
+
+4-6-9-1-8
+
+Struct Node*{
+	Int val;
+	Node* next;
+	Node* prev;
+};
+
+Node* add(Node* l1, Node* l2){
+	Node* cur_node1 = l1, cur_node2 = l2;
+	while(cur_node1->next != NULL) cur_node1 = cur_node1->next;
+	while(cur_node2->next != NULL) cur_node2 = cur_node2->next;
+
+	Node* new_node = new Node{0, NULL, NULL};
+	Int carry_over  = 0;
+	while(cur_node1 != NULL || cur_node2 != NULL){
+Int a, b; 
+		if(cur_node1 == NULL) a = 0;
+Else a =  cur_node1->val;
+if(cur_node2 == NULL) b = 0;
+Else b = cur_node2->val; 
+Int val = (a + b + carry_over)%10;
+		Carry_over = (a + b)/10;
+		if(cur_node1 != NULL) Cur_node1 = cur_node1->prev;
+		if(cur_node2 != NULL) Cur_node2 = cur_node2->prev;
+
+		new_node = new Node{val, new_node, NULL};
+		new_node->next->prev = new_node;
+	}
+
+	Return ans;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
