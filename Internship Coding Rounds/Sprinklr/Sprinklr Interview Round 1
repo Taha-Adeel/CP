@@ -1,0 +1,83 @@
+—-------------------------------------
+
+And
+True false
+
+
+0 -> false
+1 -> true
+2 -> AND
+3 -> OR
+4 -> XOR
+
+Struct Node*{
+	Int val;
+	Node* left;
+	Node* right;
+};
+
+//  2
+// 1  0
+
+Int dfs(Node* root){
+	if(root-> val == 0 || root->val == 1) return root->val;
+Auto left =dfs(root->left), right = dfs(root->right), val = root->val;
+
+switch(root->val){
+		Case 2: val = left & right; break;
+		Case 3: val = left | right; break;
+		Case 4: val = left ^ right; break;
+		Default: ;
+}
+
+Return val; 
+}
+
+// Time Complexity: O(n)
+// Space Complexity: Worst case: O(n). Balanced case: O(logn)
+
+
+—------------------------------------------------
+
+& val is 1, take min of left and right, min_flips = 2
+& val is 0 , add l and r, min_flips = val l + val r
+| val is 1, add l and r, min_flips = 2
+| val is 0, min of l and r
+
+Struct Node*{
+	Int val;
+	Node* left;
+	Node* right;
+};
+
+// first-> val of subtree, second->min_flips
+pair<int, int> dfs(Node* root, Node* parent){
+	if(root-> val == 0 || root->val == 1) return root->val;
+Auto left =dfs(root->left, root), right = dfs(root->right, root);
+int result = root->val, min_flips;
+
+switch(root->val){
+		Case 2: result = left & right; 
+if(result == 0){
+	Min_flips = left.second + right.second;
+}
+Else{
+	Min_flips = min(left.second, right.second);
+}
+
+break;
+		Case 3: val = left | right; break;
+		Case 4: val = left ^ right; break;
+		Default: ;
+}
+
+Return make_pair(val, min_flips); 
+}
+
+
+F(root, desiredResult) =
+> F(root->left, 1) + F(root->right, 1);
+
+// desired result = 0, operator = and
+F(root, 0) = min(F(root->l, 0)+F(root->r, 1), F(root->l, 0)
+
