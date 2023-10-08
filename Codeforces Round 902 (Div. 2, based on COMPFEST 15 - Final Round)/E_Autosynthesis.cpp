@@ -38,14 +38,64 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+struct Node{
+	int parent = -1;
+	int child_cnt = 0;
+	int color = -1;
+};
+
 void solve(){
 	int n; cin >> n;
 	vi a(n); cin >> a;
 
-	
+	V<Node> graph(n);
+	FOR(i, n){
+		graph[i].parent = a[i]-1;
+		graph[a[i]-1].child_cnt++;
+	}
+
+	queue<int> q;
+	FOR(i, n) if(graph[i].child_cnt == 0)
+		q.push(i);
+
+	while(!q.empty()){
+		int u = q.front(); q.pop();
+		graph[u].color = 0;
+		int v = graph[u].parent;
+		if(graph[v].color == 0) {cout << -1; return;}
+		if(graph[v].color == -1){
+			graph[v].color = 1;
+			int w = graph[v].parent;
+			if(graph[w].color == -1){
+				graph[w].child_cnt--;
+				if(graph[w].child_cnt == 0)
+					q.push(w);
+			}
+		}
+	}
+
+	// Only cycles left;
+	FOR(i, n){
+		if(graph[i].color == -1){
+			int u = i, c = 0;
+			while(graph[u].color == -1)
+				graph[u].color = c, 
+				u = graph[u].parent, 
+				c ^= 1;
+			if(c == 1) {cout << -1; return;}
+		}
+	}
+
+	vi ans;
+	FOR(i, n) if(graph[i].color == 0) 
+		ans.pb(a[i]);
+
+	cout << ans.size() << nl;
+	cout << ans;
 }
 
 int main(){
+	FAST;
 	solve();
 	cout << nl;
 	
