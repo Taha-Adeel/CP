@@ -37,7 +37,7 @@ using vll = V<ll>;
 void solve(){
 	int n, k;
 	cin >> n >> k;
-	set<pii> movies;
+	multiset<pii> movies;
 	FOR(i, n){
 		int a, b;
 		cin >> a >> b;
