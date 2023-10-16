@@ -37,65 +37,16 @@ using vi  = V<int>;
 using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
-const int MX = 200001; 
- 
-vector<vi> graph;
-bool marked[MX];
-int dist[MX];
-int dist2[MX];
- 
-void dfs1(int v, int p) {
-    vi ops;
-    ops.pb(dist2[v]);
-    if (marked[v]) ops.pb(0);
-    dist2[v] = max(dist2[v], dist[v]);
-    ops.pb(-MOD); ops.pb(-MOD);
-    for(auto& a: graph[v]) {
-        if (a == p) continue;
-        ops.pb(dist[a] + 1);
-    }
-    sort(all(ops)); reverse(all(ops));
-    for(auto& a: graph[v]) {
-        if (a == p) continue;
-        if (dist[a] + 1 == ops[0]) {
-            dist2[a] = ops[1] + 1;
-        } else dist2[a] = ops[0] + 1;
-        dfs1(a, v);
-    }
-}
-void dfs2(int v, int p) {
-    dist[v] = -MOD;
-    if (marked[v]) dist[v] = 0;
-    for(auto& a: graph[v]) {
-        if (a == p) continue;
-        dfs2(a, v);
-        dist[v] = max(dist[v], dist[a] + 1);
-    }
-}
- 
-void solve() {
-    int N; cin >> N;
-    int K; cin >> K;
-    FOR(i, N) {
-        marked[i] = false;
-    }
-    graph = vector<vi>(N);
-    FOR(i, K) {
-        int X; cin >> X; marked[X-1] = true;
-    }
-    FOR(i, N-1) {
-        int X, Y; cin >> X >> Y; X--; Y--;
-        graph[X].pb(Y); graph[Y].pb(X);
-    }
-    dfs2(0, -1);
-    dist2[0] = -MOD;
-    dfs1(0, -1);
-    int ans = MOD; FOR(i, N) ans = min(ans, dist2[i]);
-    cout << ans;
- 
+
+void solve(){
+    int n; cin >> n;
+    vi a(n); cin >> a;
+
+    display(n%2==0 || !is_sorted(all(a)) || set(all(a)).size()!= n);
 }
 
 int main(){
+
     FAST;
     int T;
     cin >> T;
