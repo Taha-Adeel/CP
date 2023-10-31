@@ -42,12 +42,9 @@ void solve(){
     int n; cin >> n;
     vi a(n); cin >> a;
 
-    int l = 1, r = 2;
-    while(l < n){
+    for(int l = 1, r = 2; l < n; l *= 2, r *= 2){
         if(!is_sorted(a.begin()+l, a.begin()+min(r, n)))
             pN
-        l *= 2;
-        r *= 2;
     }
     pY
 }
