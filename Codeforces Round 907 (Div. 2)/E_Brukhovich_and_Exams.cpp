@@ -74,20 +74,6 @@ void solve(){
         }
     }
 
-    // Remove the elements with one neighbour coprime
-    FOR1(i, n){
-        if(k == 0) break;
-        if(good(a[i], a[i-1])){
-            a[i] = 0;
-            k--;
-        }
-        if(k == 0) break;
-        if(good(a[i-1], a[i])){
-            a[i-1] = 0;
-            k--;
-        }
-    }
-
     // Remove the ones with one neighbour coprime
     FOR1(i, n){
         if(k == 0) break;
@@ -117,7 +103,6 @@ void solve(){
     FOR1(i, n) if(gcd(a[i], a[i-1]) == 1) 
         ans++;
     cout << ans;
-    cerr << a << nl;
 }
 
 int main(){
