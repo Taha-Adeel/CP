@@ -38,37 +38,15 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-void solve() {
-    int n; cin >> n;
-    vi a(n); cin >> a;
+vi cntr = {1, 4, 6, 9}; 
 
-    V<pii> ops;
+void solve(){
+    string up, down; cin >> up >> down;
 
-    V<pii> a_idx, a_idx_sorted;
-    FOR(i, n) 
-        a_idx.pb({a[i], i});
-    a_idx_sorted = a_idx;
-    a_idx_sorted.sort();
-
-    map<pii, int> pos;
-    FOR(i, n)
-        pos[{a[i], i}] = i;
-
-    auto swap_op = [&](int i, int j) {
-        if(i == j) return;
-        ops.pb({i+1, j+1});
-        ops.pb({j+1, i+1});
-        ops.pb({i+1, j+1});
-        swap(pos[a_idx[i]], pos[a_idx[j]]);
-        swap(a_idx[i], a_idx[j]);
-    };
-
-    FOR(i, n)
-        swap_op(i, pos[a_idx_sorted[i]]);
-
-    cout << ops.size() << nl;
-    for(auto& [x, y]: ops)
-        cout << x << ' ' << y << nl;
+    int ans = 0;
+    FOR(i, 5)
+        ans += cntr[(up[i] - '0')/2] - cntr[(down[i] - '0')/2];
+    cout << ans;
 }
 
 int main(){
@@ -76,6 +54,7 @@ int main(){
     int T; cin >> T;
     FOR(t, T){
         solve();
+        cout << nl;
     }
     
     return 0;
