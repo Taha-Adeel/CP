@@ -1,17 +1,11 @@
-#include <iostream>
 #include <ext/rope>
 
 int n, k, p, i;
-int main() {
-	std::cin >> n >> k;
-
+main() {
 	__gnu_cxx::rope<int> r;
-	while(i < n)
-		r.push_back(++i);
+	for (scanf("%d %d", &n, &k); i < n;)
+		r += ++i;
 	
-	while (r.size()) {
-		p = (p + k) % r.size();
-		std::cout << r.at(p) << ' ';
-		r.erase(p, 1);
-	}
+	for (;n = r.size(); r.erase(p, 1))
+		printf("%d ", r[(p += k) %= n]);
 }
