@@ -33,7 +33,7 @@ V<tuple<int, int, int>> get_edge_list(const V<Node>& graph){
 	return edges;
 }
 
-// Bellman-Ford algorithm to find shortest point from the root to all points in a weighted graph(with no negative cycles) in O(nm).
+// Bellman-Ford algorithm to find shortest path from the root to all points in a weighted graph(with no negative cycles) in O(nm).
 void calc_dists_bf_unoptimized(int root, V<Node>& graph){
 	auto edges = get_edge_list(graph);
 	
@@ -44,7 +44,7 @@ void calc_dists_bf_unoptimized(int root, V<Node>& graph){
 	}
 }
 
-// Optimized Bellman-Ford algorithm to find shortest point from the root to all points in a weighted graph(with no negative cycles) in O(nm).
+// Optimized Bellman-Ford algorithm to find shortest path from the root to all points in a weighted graph(with no negative cycles) in O(nm).
 void calc_dists_bf(int root, V<Node>& graph){
 	auto edges = get_edge_list(graph);
 
