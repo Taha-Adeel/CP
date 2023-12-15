@@ -106,6 +106,8 @@ struct CondensedNode{
 
 // Replaces the SCCs with a single condensed node.
 V<CondensedNode> condense(V<Node>& graph){
+	kosaraju_algo(graph); // Get the SCCs
+	
 	int num_of_scc = 0;
 	for(auto& node: graph) 
 		num_of_scc = max(num_of_scc, node.component);
