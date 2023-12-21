@@ -33,58 +33,21 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-struct Node {
-    int present = 1;
-    int parent = -1;
-    vi adj_list;
-};
-
-void dfs(int cur, V<Node>& tree, V<pii>& ans, bool& possible) {
-    if(!possible) return;
-    
-    int child_cnt = 0;
-    for(auto& child: tree[cur].adj_list) {
-        if(child == tree[cur].parent) continue;
-        tree[child].parent = cur;
-        dfs(child, tree, ans, possible);
-        child_cnt += tree[child].present;
-    }
-
-    if(child_cnt > 2) possible = false;
-    else if(child_cnt == 2) {
-        tree[cur].present = 0;
-        if(tree[cur].parent != -1) ans.pb({cur, tree[cur].parent});
-    }
-    else if(child_cnt == 1) {
-        if(tree[cur].parent == -1) possible = false;
-        else tree[cur].present = 2;
-    }
-}
-
 void solve() {
     int n; cin >> n;
-    V<Node> tree(n);
-    map<pii, int> edges;
-    FOR(i, n-1) {
-        int u, v; cin >> u >> v; u--; v--;
-        tree[u].adj_list.pb(v);
-        tree[v].adj_list.pb(u);
-        edges[{u, v}] = i + 1;
-        edges[{v, u}] = i + 1;
+    vi a(n); cin >> a;
+
+    ll ans = 0, delta = 0, sum = 0, mx = 0;
+    for(auto& x: a) {
+        sum += x;
+        mx = max(mx, sum);
+        if(sum - mx < delta) {
+            delta = sum - mx;
+            ans = mx;
+        }
     }
 
-    if(n % 3) { cout << -1 << nl; return; }
-
-    V<pii> ans;
-    bool possible = true;
-    dfs(0, tree, ans, possible);
-
-    if(!possible) { cout << -1 << nl; return; }
-    
-    cout << ans.size() << nl;
-    for(auto& p: ans)
-        cout << edges[p] << ' ';
-    cout << nl;
+    cout << ans;
 }
 
 int main() {
@@ -92,6 +55,7 @@ int main() {
     int T; cin >> T;
     FOR(t, T) {
         solve();
+        cout << nl;
     }
     
     return 0;

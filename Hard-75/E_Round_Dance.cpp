@@ -33,58 +33,55 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-struct Node {
-    int present = 1;
-    int parent = -1;
-    vi adj_list;
+class DSU {
+    int n; // # Nodes
+    vi parent;
+    vi _size;
+
+public:
+    int num_comps; // # Components
+    DSU(int n): n(n), num_comps(n), parent(vi(n, -1)), _size(vi(n, 1)) {}
+    int size(int u) { return _size[comp(u)]; }
+    int comp(int u) {
+        if(parent[u] == -1) return u;
+        return parent[u] = comp(parent[u]);
+    }
+
+    bool merge(int u, int v) {
+        u = comp(u); v = comp(v);
+        if(u == v) return false;
+        if(size(u) < size(v)) swap(u, v);
+        parent[v] = u; num_comps--;
+        _size[u] += _size[v]; _size[v] = 0;
+        return true;
+    }
 };
-
-void dfs(int cur, V<Node>& tree, V<pii>& ans, bool& possible) {
-    if(!possible) return;
-    
-    int child_cnt = 0;
-    for(auto& child: tree[cur].adj_list) {
-        if(child == tree[cur].parent) continue;
-        tree[child].parent = cur;
-        dfs(child, tree, ans, possible);
-        child_cnt += tree[child].present;
-    }
-
-    if(child_cnt > 2) possible = false;
-    else if(child_cnt == 2) {
-        tree[cur].present = 0;
-        if(tree[cur].parent != -1) ans.pb({cur, tree[cur].parent});
-    }
-    else if(child_cnt == 1) {
-        if(tree[cur].parent == -1) possible = false;
-        else tree[cur].present = 2;
-    }
-}
 
 void solve() {
     int n; cin >> n;
-    V<Node> tree(n);
-    map<pii, int> edges;
-    FOR(i, n-1) {
-        int u, v; cin >> u >> v; u--; v--;
-        tree[u].adj_list.pb(v);
-        tree[v].adj_list.pb(u);
-        edges[{u, v}] = i + 1;
-        edges[{v, u}] = i + 1;
+    vi a(n); cin >> a;
+
+    DSU dsu(n);
+    vi degree(n, 0);
+    set<pii> edges;
+    FOR(i, n) {
+        dsu.merge(i, --a[i]);
+        auto [u, v] = minmax(i, a[i]);
+        if(edges.count({u, v}) == 0) {
+            edges.insert({u, v});
+            degree[u]++, degree[v]++;
+        }
     }
 
-    if(n % 3) { cout << -1 << nl; return; }
-
-    V<pii> ans;
-    bool possible = true;
-    dfs(0, tree, ans, possible);
-
-    if(!possible) { cout << -1 << nl; return; }
+    map<int, int> comps;
+    FOR(i, n)
+        if(degree[i] == 2) comps[dsu.comp(i)]++;
     
-    cout << ans.size() << nl;
-    for(auto& p: ans)
-        cout << edges[p] << ' ';
-    cout << nl;
+    int min_ans = 1, max_ans = dsu.num_comps;
+    for(auto& [comp, edges]: comps)
+        if(edges == dsu.size(comp)) min_ans++;
+
+    cout << min(min_ans, max_ans) << ' ' << max_ans;
 }
 
 int main() {
@@ -92,6 +89,7 @@ int main() {
     int T; cin >> T;
     FOR(t, T) {
         solve();
+        cout << nl;
     }
     
     return 0;
