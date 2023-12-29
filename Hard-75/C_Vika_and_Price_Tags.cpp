@@ -33,28 +33,33 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+void update_i() {}
+
 void solve() {
     int n; cin >> n;
     vi a(n), b(n); cin >> a >> b;
 
-    auto check = [&](int ans) {
-        map<int, int> cnt;
-        for(int x: a) ++cnt[ x & ans];
-        for(int x: b) --cnt[~x & ans];
+    set<int> ops_mod3;
+    FOR(i, n) {
+        if(a[i] == 0 && b[i] == 0) continue;
 
-        bool ok = true;
-        for(auto [x, f]: cnt) if(f != 0)
-            ok = false;
-        
-        return ok;
-    };
-    
-    int ans = 0;
-    for(int bit = 29; bit >= 0; --bit) 
-        if(check(ans | (1 << bit)))
-            ans |= 1 << bit;
-    
-    cout << ans;
+        auto [p, q] = pii(minmax(a[i], b[i]));
+
+        int ops = 0, d = p ? q / p : 0;
+        if(a[i] <= b[i]) d += 1;
+        else ops += 1;
+
+        while(p != 0) {
+            ops += 3 * (d / 2) - 1 + 2 * (d % 2);
+            tie(p, q) = make_pair(q % p, p);
+            d = p ? q / p + (d % 2 == 0) : 0;
+        }
+
+        ops_mod3.insert(ops % 3);
+    }
+
+    if(ops_mod3.size() <= 1) cout << "YES";
+    else cout << "NO";
 }
 
 int main() {
