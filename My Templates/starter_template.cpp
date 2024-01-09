@@ -22,8 +22,6 @@ template<class T> struct V: vector<T>{using vector<T>::vector;
 #define FOR_REV(i, n)            for(int i = (int)n-1; i >= 0; --i)
 #define all(v)                   v.begin(), v.end()
 
-#define F  first
-#define S  second
 #define pb push_back
 constexpr char nl = '\n';
 constexpr int MOD = 1000000007;
