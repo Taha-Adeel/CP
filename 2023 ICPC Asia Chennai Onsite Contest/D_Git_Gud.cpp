@@ -33,26 +33,60 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
+template<int MOD = MOD, int MxN = 1'000'001>
+class Z {
+    static vector<Z> fact;
+    static void init_fact() { fact.resize(MxN); fact[0] = 1; for(int i = 1; i < MxN; ++i) fact[i] = fact[i-1] * i; }
+public:
+    int val;
+    Z(ll v = 0) : val(v%MOD) { if(val < 0) val += MOD; }
+
+    Z pow(ll e) const { Z res = 1; for(Z b = val; e > 0; b = b*b, e /= 2) if(e & 1) res = res*b; return res; }
+    Z inv() const { return pow(MOD-2); }
+    static Z nCr(int n, int k) { if(k < 0 || k > n) return 0; if(fact.empty()) init_fact(); return fact[n] / (fact[k] * fact[n-k]); }
+
+    Z operator+(const Z& o) const { return Z(val + o.val); }
+    Z operator-(const Z& o) const { return Z(val - o.val); }
+    Z operator*(const Z& o) const { return Z((ll)val * o.val); }
+    Z operator/(const Z& o) const { return *this * o.inv(); }
+    Z operator-() const { return Z(-val); }
+    Z operator+=(const Z& o) { return *this = *this + o; }
+    Z operator-=(const Z& o) { return *this = *this - o; }
+    Z operator*=(const Z& o) { return *this = *this * o; }
+    Z operator/=(const Z& o) { return *this = *this / o; }
+    bool operator==(const Z& o) const { return val == o.val; }
+    bool operator!=(const Z& o) const { return val != o.val; }
+
+    friend istream& operator>>(istream& in, Z& z) { ll v; in >> v; z = Z(v); return in; }
+    friend ostream& operator<<(ostream& out, const Z& z) { return out << z.val; }
+};
+
+struct Node {
+    Z<MOD> ans = 0;
+	V<pll> gcd_freqs;
+};
+
 void solve() {
     int n; cin >> n;
-    vi ans(n+1, 0);
-    V<unordered_map<ll, int>> freqs(n+1);
+    V<Node> tree(n + 1);
 
-    int g = 0;
+    Z g = 0;
     FOR1(i, n) {
         ll parent, val; cin >> parent >> val;
-        parent ^= g;
-        val ^= g;
+        parent ^= g.val;
+        val ^= g.val;
 
-        ans[i] = ans[parent];
-        for(auto& [g, freq]: freqs[parent])
-            freqs[i][gcd(val, g)] += freq;
-        freqs[i][val]++;
+        map<ll, int> freqs;
+        tree[i].ans = tree[parent].ans;
+        for(auto& [g, freq]: tree[parent].gcd_freqs)
+            freqs[gcd(val, g)] += freq;
+        freqs[val]++;
 
-        for(auto& [g, freq]: freqs[i])
-            (ans[i] += g % MOD * freq % MOD) %= MOD;
+        for(auto& [g, freq]: freqs)
+            tree[i].ans += Z(g) * freq,
+            tree[i].gcd_freqs.pb({g, freq});
 
-        cout << (g = ans[i]) << nl;
+        cout << (g = tree[i].ans) << nl;
     }
 }
 
