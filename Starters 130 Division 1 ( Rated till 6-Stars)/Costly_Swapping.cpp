@@ -144,6 +144,9 @@ void solve() {
     ll ans = c * n, cur_sum = 0;
     auto check = [&](int x, int y) { // Check if x ingredients with y swaps is valid or not
         // Find smallest i s.t. seg_count_dec.query(0, i) >= y using binary search
+        if (y == 0) {
+            return cur_sum > m;
+        }
         int l = 0, r = n - 1;
         while (l < r) {
             int mid = (l + r) / 2;
@@ -180,8 +183,14 @@ void solve() {
             break;
         }
 
+        cur_sum += a[x];
+        seg_dec.update(idx_dec[x], 0);
+        seg_inc.update(idx_inc[x], a[x]);
+        seg_count_dec.update(idx_dec[x], 0);
+        seg_count_inc.update(idx_inc[x], 1);
+
         // We use binary search to find min y (number of swaps) such that check(x, y) is true
-        int l = 0, r = x;
+        int l = 0, r = min(x + 1, int(n) - x - 1);
         while (l < r) {
             int mid = (l + r) / 2;
             if (check(x, mid)) {
@@ -193,14 +202,8 @@ void solve() {
         if (check(x, l)) {
             ans = min(ans, c * x + s * l);
         }
-
-        cur_sum += a[x];
-        seg_dec.update(idx_dec[x], 0);
-        seg_inc.update(idx_inc[x], a[x]);
-        seg_count_dec.update(idx_dec[x], 0);
-        seg_count_inc.update(idx_inc[x], 1);
     }
-
+    
     cout << ans;
 }
 
