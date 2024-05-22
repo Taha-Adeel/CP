@@ -34,23 +34,25 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve() {
-    int n; cin >> n;
-    vi a(n); cin >> a;
+    int n, k; cin >> n >> k;
+    vll a(n), b(n); cin >> a >> b;
 
-    vi dp(n + 1);
-    dp[0] = 0;
-    for (int i = 0; i < n; i++) {
-        dp[i + 1] = dp[i] + (!!a[i]);
-        int xor_val = a[i];
-        for (int j = i - 1; j >= 0 && xor_val; j--) {
-            xor_val ^= a[j];
-            if (xor_val == 0) {
-                dp[i + 1] = min(dp[i + 1], dp[j] + i - j);
-            }
+    V<vll> dp(n, vll(k, 1e15)); // dp_a[i][k] = min overall mood after eating the first i chocolates in k days.
+    vll ps_a = a.prefix_sums(), ps_b = b.prefix_sums();
+    vll min_a(k, 1e15), min_b(k, 1e15);
+    FOR (i, n) {
+        dp[i][0] = min(ps_a[i + 1], ps_b[i + 1]);
+        min_a[0] = min(min_a[0], dp[i][0] - ps_a[i + 1]);
+        min_b[0] = min(min_b[0], dp[i][0] - ps_b[i + 1]);
+        for (int j = 1; j < k; j++) {
+            if (i == 0) continue;
+            dp[i][j] = min(ps_a[i + 1] + min_a[j - 1], ps_b[i + 1] + min_b[j - 1]);
+            min_a[j] = min(min_a[j], dp[i][j] - ps_a[i + 1]);
+            min_b[j] = min(min_b[j], dp[i][j] - ps_b[i + 1]);
         }
     }
 
-    cout << dp[n];
+    cout << dp[n - 1][k - 1];
 }
 
 int main() {

@@ -34,23 +34,30 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve() {
-    int n; cin >> n;
-    vi a(n); cin >> a;
+    int a, b, k; cin >> a >> b >> k;
 
-    vi dp(n + 1);
-    dp[0] = 0;
-    for (int i = 0; i < n; i++) {
-        dp[i + 1] = dp[i] + (!!a[i]);
-        int xor_val = a[i];
-        for (int j = i - 1; j >= 0 && xor_val; j--) {
-            xor_val ^= a[j];
-            if (xor_val == 0) {
-                dp[i + 1] = min(dp[i + 1], dp[j] + i - j);
-            }
-        }
+    int b_copy = b;
+    vi b_base_k;
+    while (b) {
+        b_base_k.pb(b%k);
+        b /= k;
+    }
+    reverse(all(b_base_k));
+
+    int i = 0;
+    while (b_copy / k >= a) {
+        b_copy /= k;
+        i++;
+    }
+    i = b_base_k.size() - i;
+
+    ll ans = b_copy - a;
+    while (i < b_base_k.size()) {
+        ans += b_base_k[i] + 1;
+        i++;
     }
 
-    cout << dp[n];
+    cout << ans;
 }
 
 int main() {

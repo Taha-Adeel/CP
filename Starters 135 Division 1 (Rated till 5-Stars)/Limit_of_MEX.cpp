@@ -34,23 +34,57 @@ using vll = V<ll>;
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
 void solve() {
-    int n; cin >> n;
-    vi a(n); cin >> a;
+    ll n; cin >> n;
+    vll a(n); cin >> a;
 
-    vi dp(n + 1);
-    dp[0] = 0;
-    for (int i = 0; i < n; i++) {
-        dp[i + 1] = dp[i] + (!!a[i]);
-        int xor_val = a[i];
-        for (int j = i - 1; j >= 0 && xor_val; j--) {
-            xor_val ^= a[j];
-            if (xor_val == 0) {
-                dp[i + 1] = min(dp[i + 1], dp[j] + i - j);
-            }
+    ll ans = 0; // ans = sigma(max(A) + 1 - distinct(A)) for all subarrays of A.
+    ans += n * (n + 1) / 2; // sigma(1) for all subarrays of A.
+
+    // sigma(max(A)) for all subarrays of A.
+    vll idx_prev_larger(n, -1), idx_next_larger(n, n);
+    stack<int> st;
+    FOR (i, n) {
+        while (!st.empty() && a[st.top()] <= a[i]) {
+            st.pop();
         }
+        if (!st.empty()) {
+            idx_prev_larger[i] = st.top();
+        }
+        st.push(i);
+    }
+    while (!st.empty()) st.pop();
+    ROF (i, n) {
+        while (!st.empty() && a[st.top()] < a[i]) {
+            st.pop();
+        }
+        if (!st.empty()) {
+            idx_next_larger[i] = st.top();
+        }
+        st.push(i);
+    }
+    FOR (i, n) {
+        ans += (i - idx_prev_larger[i]) * (idx_next_larger[i] - i) * a[i];
     }
 
-    cout << dp[n];
+    // sigma(distinct(A)) for all subarrays of A.
+    V<vi> indices(n, {-1});
+    FOR (i, n) {
+        indices[a[i]].pb(i);
+    }
+    FOR (i, n) {
+        indices[i].pb(n);
+    }
+    ll dist_sum = 0;
+    FOR (i, n) {
+        dist_sum += (n * (n + 1)) / 2;
+        FOR (j, indices[i].size() - 1) {
+            ll len = indices[i][j + 1] - indices[i][j] - 1; 
+            dist_sum -= (len * (len + 1)) / 2;
+        }
+    }
+    ans -= dist_sum;
+
+    cout << ans;
 }
 
 int main() {

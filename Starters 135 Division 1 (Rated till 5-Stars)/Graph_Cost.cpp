@@ -35,22 +35,44 @@ using vll = V<ll>;
 
 void solve() {
     int n; cin >> n;
-    vi a(n); cin >> a;
+    vll a(n); cin >> a;
 
-    vi dp(n + 1);
-    dp[0] = 0;
-    for (int i = 0; i < n; i++) {
-        dp[i + 1] = dp[i] + (!!a[i]);
-        int xor_val = a[i];
-        for (int j = i - 1; j >= 0 && xor_val; j--) {
-            xor_val ^= a[j];
-            if (xor_val == 0) {
-                dp[i + 1] = min(dp[i + 1], dp[j] + i - j);
-            }
+    vi idx_next_smaller(n, -1);
+    stack<int> st;
+    for (int i = n - 1; i >= 0; i--) {
+        while (!st.empty() && a[st.top()] > a[i]) {
+            st.pop();
+        }
+        if (!st.empty()) {
+            idx_next_smaller[i] = st.top();
+        }
+        st.push(i);
+    }
+
+    vi idx_min_after(n + 1, -1); // index of the minimum element after i
+    int cur_min = INT_MAX;
+    for (int i = n - 1; i >= 0; i--) {
+        if (a[i] < cur_min) {
+            cur_min = a[i];
+            idx_min_after[i] = i;
+        } else {
+            idx_min_after[i] = idx_min_after[i + 1];
         }
     }
 
-    cout << dp[n];
+    ll ans = 0;
+    int cur_i = 0;
+    while (cur_i < n - 1) {
+        if (idx_next_smaller[cur_i] != -1) {
+            ans += a[cur_i] * (idx_next_smaller[cur_i] - cur_i);
+            cur_i = idx_next_smaller[cur_i];
+        } else {
+            ans += a[idx_min_after[cur_i + 1]] * (idx_min_after[cur_i + 1] - cur_i);
+            cur_i = idx_min_after[cur_i + 1];
+        }
+    }
+
+    cout << ans;
 }
 
 int main() {
