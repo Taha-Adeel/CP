@@ -33,7 +33,7 @@ using vll = V<ll>;
 
 /*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
 
-vll primes; // Primes uptil sqrt(10^9)
+vi primes; // Primes uptil sqrt(10^9)
 void sieve(int n) {
     vector<bool> is_prime(n+1, true);
     is_prime[0] = is_prime[1] = false;
@@ -50,10 +50,51 @@ void sieve(int n) {
     }
 }
 
+V<pii> getPrimeFactors(int n) {
+    V<pii> factors;
+    for(auto& p: primes) {
+        if(p*p > n) break;
+        if(n%p == 0) {
+            int cnt = 0;
+            while(n%p == 0) {
+                n /= p;
+                cnt++;
+            }
+            factors.pb({p, cnt});
+        }
+    }
+    if(n > 1) factors.pb({n, 1});
+    return factors;
+}
+
+void setDivisors(vi& divisors, int i, int n, const V<pii>& factors) {
+    if(i == factors.size()) {
+        divisors.pb(n);
+        return;
+    }
+    auto [p, cnt] = factors[i];
+    FOR1(j, cnt) {
+        setDivisors(divisors, i+1, n, factors);
+        n *= p;
+    }
+    setDivisors(divisors, i+1, n, factors);
+}
+
+map<int, vi> divisors_dp;
+vi getDivisors(int n) {
+    if(divisors_dp.count(n)) return divisors_dp[n];
+    auto factors = getPrimeFactors(n);
+    vi divisors;
+    setDivisors(divisors, 0, 1, factors);
+    sort(divisors.begin(), divisors.end());
+    return divisors_dp[n] = divisors;
+}
+
 void solve() {
     int n; cin >> n;
     vi a(n); cin >> a;
 
+    a.sort();
     set<int> a_set(all(a));
     ll lcm_all = 1;
     FOR (i, n) {
@@ -62,66 +103,26 @@ void solve() {
         }
     }
     if (lcm_all > 1e9 || a_set.count(lcm_all) == 0) {
-        cout << n << nl;
+        cout << n;
         return;
     }
     
-    map<int, int> max_degree;
-    FOR (i, n) {
-        int x = a[i];
-        for (int p: primes) {
-            if (p*p > x) break;
-            if (x % p == 0) {
-                int cnt = 0;
-                while (x % p == 0) {
-                    x /= p;
-                    cnt++;
-                }
-                max_degree[p] = max(max_degree[p], cnt);
-            }
-        }
-        if (x > 1) {
-            max_degree[x] = max(max_degree[x], 1);
-        }
-    }
-
     ll ans = 0;
-    for (auto [p, deg]: max_degree) {
-        int x = p, cnt = 1;
-        while (cnt < deg) {
-            x *= p;
-            cnt++;
+    for (int x: getDivisors(lcm_all)) {
+        if (a_set.count(x)) continue;
+        ll lcm_cur = 1, cur_ans = 0;
+        FOR (i, n) {
+            if (x % a[i] == 0) {
+                lcm_cur = lcm(lcm_cur, a[i]);
+                cur_ans++;
+            }
         }
-
-        while (x > 1) {
-            ll lcm_cur = 1, cur_ans = 0;
-            FOR (i, n) {
-                if (a[i] % x != 0) {
-                    if (lcm_cur <= 1e9) {
-                        lcm_cur = lcm(lcm_cur, a[i]);
-                    }
-                    cur_ans++;
-                }
-            }
-            if (lcm_cur > 1e9 || a_set.count(lcm_cur) == 0) {
-                ans = max(ans, cur_ans);
-                break;
-            }
-            x /= p;
+        if (lcm_cur == x) {
+            ans = max(ans, cur_ans);
         }
     }
 
-    cout << ans << nl;
-}
-
-void solve_debug(int t) {
-    int n; cin >> n;
-    vi a(n); cin >> a;
-
-    if (t == 63) {
-        cout << n << nl;
-        cout << a << nl;
-    }
+    cout << ans;
 }
 
 int main() {
@@ -129,11 +130,8 @@ int main() {
     FAST;
     int T; cin >> T;
     FOR(t, T) {
-        if (T != 318) {
-            solve();
-        } else {
-            solve_debug(t);
-        }
+        solve();
+        cout << nl;
     }
     
     return 0;
