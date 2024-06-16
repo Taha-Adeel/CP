@@ -39,7 +39,7 @@ void solve() {
 
     auto check = [&] (ll x) {
         ll dmg = 0;
-        FOR (i, n) {
+        for (int i = 0; i < n and dmg < h; i++) {
             dmg += a[i] * ((x - 1) / c[i] + 1);
         }
         return dmg >= h;
