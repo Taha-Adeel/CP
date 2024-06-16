@@ -37,7 +37,7 @@ using vll = V<ll>;
 #define MAXN 2005
 vi primes;
 void seive() {
-    ll N = sqrt(MAXN) + 1;
+    ll N = MAXN;
     vi is_prime(N+1, 1);
     is_prime[0] = is_prime[1] = 0;
     for(ll i=2; i*i<=N; i++) if(is_prime[i])
