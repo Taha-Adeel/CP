@@ -154,30 +154,32 @@ void solve() {
     vll dist(n, 1e15);
     dist[0] = 0;
 
-    LazySegmentTree dist_st(dist);
-    for (int u = 0; u < n; u++) {
-        ll dist_u = dist_st.query(u, u); 
-        dist_st.update(u + 1, b[u] - 1, a[u] + dist_u);
-    }
-
-    // priority_queue<pll, vector<pll>, greater<pll>> pq;
-    // pq.push({0, 0});
-    // while (!pq.empty()) {
-    //     auto [d, u] = pq.top(); pq.pop();
-    //     if (d > dist[u]) continue;
-    //     for (int v = u + 1; v < b[u]; ++v) {
-    //         if (dist[v] > dist[u] + a[u]) {
-    //             dist[v] = dist[u] + a[u];
-    //             pq.push({dist[v], v});
-    //         }
-    //     }
+    // LazySegmentTree dist_st(dist);
+    // for (int u = 0; u < n; u++) {
+    //     ll dist_u = dist_st.query(u, u); 
+    //     dist_st.update(u + 1, b[u] - 1, a[u] + dist_u);
     // }
-    
+
+    priority_queue<pll, vector<pll>, greater<pll>> pq;
+    pq.push({0, 0});
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (d > dist[u]) continue;
+        if (u > 0 and dist[u - 1] > dist[u]) {
+            dist[u - 1] = dist[u];
+            pq.push({dist[u - 1], u - 1});
+        }
+        if (b[u] - 1 > u and dist[b[u] - 1] > dist[u] + a[u]) {
+            dist[b[u] - 1] = dist[u] + a[u];
+            pq.push({dist[b[u] - 1], b[u] - 1});
+        }
+    }
 
     vll ps = a.prefix_sums();
     ll ans = 0;
     FOR (i, n) {
-        ans = max(ans, ps[i + 1] - dist_st.query(i, i));
+        // ans = max(ans, ps[i + 1] - dist_st.query(i, i));
+        ans = max(ans, ps[i + 1] - dist[i]);
     }
 
     cout << ans;
