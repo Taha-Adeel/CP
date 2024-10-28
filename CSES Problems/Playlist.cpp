@@ -37,20 +37,28 @@ using vll = V<ll>;
 void solve(){
 	int n;
 	cin >> n;
-	vi k(n);
-	cin >> k;
+	vi a(n);
+	cin >> a;
 
-	unordered_map<int, int> last_index;
-	int max_len = 0, l = 1;
-	FOR1(r, n+1){
-		if(last_index[k[r-1]] >= l){
-			l = last_index[k[r-1]]+1;
+	ll ans = 0;
+	int l = 0, r = 0;
+	set<int> cur_nums;
+	while (r < n) {
+		if (cur_nums.count(a[r]) == 0) {
+			cur_nums.insert(a[r]);
+			ans = max(ans, (ll)cur_nums.size());
+		} else {
+			while (a[l] != a[r]) {
+				cur_nums.erase(a[l]);
+				l++;
+			}
+			l++;
+			ans = max(ans, (ll)cur_nums.size());
 		}
-		last_index[k[r-1]] = r;
-		max_len = max(max_len, r-l+1);
+		r++;
 	}
 
-	cout << max_len;
+	cout << ans;
 }
 
 int main(){
