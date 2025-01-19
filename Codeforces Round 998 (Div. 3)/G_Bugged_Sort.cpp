@@ -45,14 +45,15 @@ void solve() {
 
     V<bool> used(2 * n + 1, false);
     int cur_x = -1, cur_y = -1;
-    int num_inversions = 0, num_free = 0;
+    int num_inversions = 0, num_used = 0;
+    vi free(n, 0);
     for (int k = 1; k <= 2 * n; k++) {
         if (used[k]) continue;
         int i = idx[k];
         int x = a[i], y = b[i];
         if (min(x, y) > max(cur_x, cur_y)) {
             cur_x = x; cur_y = y;
-            num_free++;
+            free[num_used] = 1;
         } else if (x > cur_x and y > cur_y) {
             cur_x = x; cur_y = y;
         } else if (x > cur_y and y > cur_x) {
@@ -63,10 +64,25 @@ void solve() {
             return;
         }
         used[x] = used[y] = true;
+        num_used++;
     }
 
-    cout << "YES";
-    cerr << num_inversions << ' ' << num_free << nl;
+    if (num_inversions % 2 == 0) {
+        cout << "YES";
+    } else {
+        int zero_cnt = 0;
+        for (int i = 1; i <= n; i++) {
+            if (i < n and free[i] == 0) zero_cnt++;
+            else {
+                if (zero_cnt % 2 == 0) {
+                    cout << "YES";
+                    return;
+                }
+                zero_cnt = 0;
+            }
+        }
+        cout << "NO";
+    }
 }
 
 int main() {
