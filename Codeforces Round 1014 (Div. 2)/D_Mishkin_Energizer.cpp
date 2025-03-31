@@ -86,7 +86,7 @@ void solve() {
         other ^= 2 ^ 3;
         cnt[other]++;
         i += reverse;
-        if (ans.size() > 2 * n) {}
+        if (ans.size() > 2 * n) {
             cout << 1 << nl; return;
         }
     }
